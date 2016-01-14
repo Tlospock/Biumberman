@@ -30,6 +30,7 @@ void init_map(int** carte, int longueur, int largeur) /*Prend en paramètre un p
     
     /* Création des blocs air: random*/
     
-    /* Création des blocs fixes qui doivent toujours être là*/
+    /* Création des blocs indestru/air fixe qui doivent toujours être là: position de départ, centre de la map*/
     
 }
+
