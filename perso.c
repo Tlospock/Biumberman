@@ -24,10 +24,11 @@ void init_perso(Square **carte, Perso* tab_perso, int nb_perso){
             carte[LONGUEUR_MAP-2][HAUTEUR_MAP-2].idJoueur = 4;
         }
 
+        tab_perso[i].direction = 2;
         tab_perso[i].vie = 1;
         tab_perso[i].nbBombePos = 0;
         tab_perso[i].nbBombeTot = 1;
-        tab_perso[i].vitesse = 1;
+        tab_perso[i].vitesse = 1.0;
 
         tab_perso[i].radius = 1;
         tab_perso[i].effetBonus = 0;
@@ -36,7 +37,7 @@ void init_perso(Square **carte, Perso* tab_perso, int nb_perso){
 }
 /* init_perso : manque à init le sprite*/
 
-void deplacer(int idJoueur){
+void deplacer(int idJoueur, Position arrivee, Position depart){
 
 }
 
@@ -45,9 +46,11 @@ void poseBombe(Square** carte, Perso* idJoueur){
     if(carte[idJoueur->pos.x][idJoueur->pos.y].bombe.radius==0){
     /*Si le joueur peut bien poser une bombe*/
         if(idJoueur->nbBombeTot - idJoueur->nbBombePos > 0){
-        idJoueur->nbBombePos++;
-        carte[idJoueur->pos.x][idJoueur->pos.y].bombe.decompte = 2;
-        carte[idJoueur->pos.x][idJoueur->pos.y].bombe.radius = idJoueur->radius;
+            idJoueur->nbBombePos++;
+            carte[idJoueur->pos.x][idJoueur->pos.y].bombe.decompte = 2;
+            carte[idJoueur->pos.x][idJoueur->pos.y].bombe.radius = idJoueur->radius;
+
+            /*Animation de pose de bombe*/
         }else{
         /*PEUT PAS POSER LA BOMBEEEEEE!!!!!!!*/
         }
