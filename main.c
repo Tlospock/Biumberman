@@ -1,15 +1,16 @@
 #include "map.h"
 #include "affichage.h"
 
-int main()
+int main(int argc, char* args[])
 {
     srand(time(NULL));
 
     printf("Hello world!\n");
 
-    int var=1;
+    /*int var=1;
     var = test();
-    printf("var = %d", var);
+    printf("\nvar = %d", var);*/
 
+    jeu();
     return 0;
 }
