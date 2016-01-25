@@ -15,55 +15,113 @@
 #define PVIE             10
 #define POUSSEE     11
 
-int menu_joueurs(SDL_Window* window, SDL_Surface* screenSurface){
+int menu_joueurs(SDL_Window* window, SDL_Surface* screenSurface, SDL_Event event){
     int nbjoueurs;
-    
-    SDL_Event* event;
-    
- /*bouton1 = 1joueur, bouton2= 2joueurs, ...*/
-    SDL_Surface* bouton1_opt = NULL;
-    SDL_Surface* bouton2_opt = NULL;
-    SDL_Surface* bouton3_opt = NULL;
-    SDL_Surface* bouton4_opt = NULL;
-    
-    SDL_Surface* bouton1_load = IMG_Load("Img/P1.png");
-    SDL_Surface* bouton2_load = IMG_Load("Img/P2.png");
-    SDL_Surface* bouton3_load = IMG_Load("Img/P3.png");
-    SDL_Surface* bouton4_load = IMG_Load("Img/P4.png");
-    if(bouton1_load==NULL || bouton2_load == NULL || bouton3_load == NULL || bouton4_load == NULL){
-        printf("\nSDL error = %s\n", IMG_GetError());
+
+ /*AFFICHAGE DES BOUTONS
+  * bouton1 = 1joueur, bouton2= 2joueurs, ...*/
+    SDL_Surface *ecriteau = NULL;
+    SDL_Rect ecr;
+    ecr.x = (LONGUEUR_MAP*TILE_SIZE)/2 - 200;
+    ecr.y = 30;
+
+    SDL_Surface *bouton1 = NULL;
+    SDL_Rect b1;
+    b1.x = ((LONGUEUR_MAP*TILE_SIZE)/2)-20-50;
+    b1.y = ((HAUTEUR_MAP*TILE_SIZE)/2)-20-50;
+
+    SDL_Surface* bouton2 = NULL;
+    SDL_Rect b2;
+    b2.x = (LONGUEUR_MAP*TILE_SIZE)/2-20-50;
+    b2.y = (HAUTEUR_MAP*TILE_SIZE)/2-20+50;
+
+    SDL_Surface* bouton3 = NULL;
+    SDL_Rect b3;
+    b3.x = (LONGUEUR_MAP*TILE_SIZE)/2-20+50;
+    b3.y = (HAUTEUR_MAP*TILE_SIZE)/2-20-50;
+
+    SDL_Surface* bouton4 = NULL;
+    SDL_Rect b4;
+    b4.x = (LONGUEUR_MAP*TILE_SIZE)/2-20+50;
+    b4.y = (HAUTEUR_MAP*TILE_SIZE)/2-20+50;
+
+    bouton1 = SDL_LoadBMP("Img/P1.bmp");
+    bouton2 = SDL_LoadBMP("Img/P2.bmp");
+    bouton3 = SDL_LoadBMP("Img/P3.bmp");
+    bouton4 = SDL_LoadBMP("Img/P4.bmp");
+    ecriteau = SDL_LoadBMP("Img/ecriteau_joueurs.bmp");
+    if(bouton1 ==NULL || bouton2 == NULL || bouton3 == NULL || bouton4 == NULL || ecriteau == NULL){
+        printf("\nBoutons nuls : SDL error = %s\n", IMG_GetError());
         exit(EXIT_FAILURE);
     }
-    bouton1_opt = SDL_ConvertSurface(bouton1_load, screenSurface->format, NULL);
-    bouton2_opt = SDL_ConvertSurface(bouton2_load, screenSurface->format, NULL);
-    bouton3_opt = SDL_ConvertSurface(bouton3_load, screenSurface->format, NULL);
-    bouton4_opt = SDL_ConvertSurface(bouton4_load, screenSurface->format, NULL);
-    
-    if(bouton1_opt==NULL || bouton2_opt == NULL || bouton3_opt == NULL || bouton4_opt == NULL){
-        printf("\nSDL error = %s\n", IMG_GetError());
-        exit(EXIT_FAILURE);
-    }
-    
-    SDL_BlitSurface(bouton1_opt, NULL, screenSurface, NULL);
+    /*Gerer la transparence*/
+    SDL_SetColorKey(bouton1, 1, SDL_MapRGB(bouton1->format, 0, 255, 0));
+    SDL_SetColorKey(bouton2, 1, SDL_MapRGB(bouton2->format, 0, 255, 0));
+    SDL_SetColorKey(bouton3, 1, SDL_MapRGB(bouton3->format, 0, 255, 0));
+    SDL_SetColorKey(bouton4, 1, SDL_MapRGB(bouton4->format, 0, 255, 0));
+    /*Afficher*/
+    SDL_BlitSurface(bouton1, NULL, screenSurface, &b1);
+    SDL_BlitSurface(bouton2, NULL, screenSurface, &b2);
+    SDL_BlitSurface(bouton3, NULL, screenSurface, &b3);
+    SDL_BlitSurface(bouton4, NULL, screenSurface, &b4);
+    SDL_BlitSurface(ecriteau, NULL, screenSurface, &ecr);
+
+
+/*GESTION DU CLIC SUR LE BOUTON*/
     /*Si clic, vérifier la pos de la souris, si sur un bouton, alors sélectionner nb de joueurs*/
-    if(event->type == SDL_MOUSEBUTTONDOWN){
-        int x, y;
-        SDL_GetMouseState(&x, &y);
-        /*bouton1*/
-        if(x<=40 && y<=40){
-            nbjoueurs = 1;
-            printf("\nCliqué sur 1 joueur\n");
+        if(event.type == SDL_MOUSEBUTTONDOWN){
+            int x, y;
+            SDL_GetMouseState(&x, &y);
+            printf("\nPos clic : x = %d, y = %d", x, y);
+            /*Clic sur bouton 1*/
+            if(x>=b1.x && x<=b1.x+TILE_SIZE && y>=b1.y && y<=b1.y+TILE_SIZE){
+                nbjoueurs = 1;
+                printf("\nClique sur 1 joueur\n");
+            }
+             /*Clic sur bouton 2*/
+            if(x>=b2.x && x<=b2.x+TILE_SIZE && y>=b2.y && y<=b2.y+TILE_SIZE){
+                nbjoueurs = 2;
+                printf("\nClique sur 2 joueurs\n");
+            }
+            /*Clic sur bouton 3*/
+            if(x>=b3.x && x<=b3.x+TILE_SIZE && y>=b3.y && y<=b3.y+TILE_SIZE){
+                nbjoueurs = 3;
+                printf("\nClique sur 3 joueurs\n");
+            }
+            /*Clic sur bouton 4*/
+            if(x>=b4.x && x<=b4.x+TILE_SIZE && y>=b4.y && y<=b4.y+TILE_SIZE){
+                nbjoueurs = 4;
+                printf("\nClique sur 4 joueurs\n");
+            }
+
         }
-    }
 
     SDL_UpdateWindowSurface(window);
-    return 2;
+
+    return nbjoueurs;
 }
 
 
 int jeu(){
     int i, j;
-    int nbPerso=4;
+    int nbPerso=NB_PERSONNAGE;
+
+    /*Initialisation de la SDL*/
+     short int success;
+
+    /*main loop flag*/
+    short int quit = 0;
+
+    /*event handler*/
+    SDL_Event e;
+    SDL_Window* window;
+    SDL_Surface* screenSurface;
+
+    success = initierSDL(&window, &screenSurface);
+    if(!success){
+        printf("\nPas pu initialiser TLO BIUMBERMAN");
+        exit(EXIT_FAILURE);
+    }
 
     /*Déclaration / allocation de la carte de jeu*/
     Square **carte = (Square**)malloc(LONGUEUR_MAP*sizeof(Square*));
@@ -77,6 +135,10 @@ int jeu(){
     init_map(carte, LONGUEUR_MAP, HAUTEUR_MAP);
 
     init_perso(carte, tab_joueur, nbPerso);
+
+    /*Fin Initialisation*/
+
+    /*Jeu*/
 
     for(i=0; i<LONGUEUR_MAP; ++i)
     {
@@ -93,6 +155,33 @@ int jeu(){
 
         printf("\n");
     }
+
+    /*Boucle de Jeu*/
+
+     SDL_UpdateWindowSurface(window);
+    int done =0;
+    while(!quit){
+        while(SDL_PollEvent(&e)!=0){
+            /*User requests quit*/
+            if(e.type == SDL_QUIT){
+                quit = 1;
+            }
+            /*menu_joueurs(window, screenSurface, e);*/
+            if(done==0)
+            {
+                refresh_map(window, screenSurface, carte);
+                done=1;
+            }
+
+        }
+    }
+
+    /*Fin de la boucle de Jeu*/
+
+    /*Quitter la SDL*/
+
+    quitter(window, screenSurface);
+
     /*désallouer le tableau de la carte*/
     for(i=0; i<LONGUEUR_MAP; i++){
         free(carte[i]);
