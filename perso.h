@@ -16,7 +16,7 @@
 
 void init_perso(Square **carte, Perso* tab_perso, int nb_perso);
 
-void deplacer(SDL_Window* window, SDL_Surface* screenSurface, Square** carte, int idJoueur, Perso* tab_joueur, int direction);
+int deplacer(Square** carte, Perso* joueur);
 
 void poseBombe(Square** carte, Perso* idJoueur);
 

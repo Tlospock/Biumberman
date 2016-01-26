@@ -75,47 +75,9 @@ void refresh_map(SDL_Window* window, SDL_Surface* screenSurface, Square** carte)
     SDL_FreeSurface(tile3);
     SDL_FreeSurface(hard);
     SDL_FreeSurface(airGround);
-      
-    SDL_UpdateWindowSurface(window);
 }
 
-void refreshPerso(SDL_Window* window, SDL_Surface* screenSurface, Square** carte, Perso* tab_perso, int nb_perso)
-{
-    int i;
-    SDL_Rect posPerso, cadre;
 
-
-
-    for(i=0; i<nb_perso; ++i)
-    {
-        posPerso.x = tab_perso[i].pos.x*TILE_SIZE;
-        posPerso.y = tab_perso[i].pos.y*TILE_SIZE;
-
-        cadre.x = tab_perso[i].direction * TILE_SIZE * NB_FRAME_ANIMATION + tab_perso[i].frameEnCours * TILE_SIZE;
-        cadre.y = tab_perso[i].direction;
-        cadre.w = TILE_SIZE;
-        cadre.h = TILE_SIZE;
-
-        switch(i)
-        {
-            case(0):
-                SDL_BlitSurface(tab_perso[i].sprite, &cadre, screenSurface, &posPerso);
-                break;
-            case(1):
-                SDL_BlitSurface(tab_perso[i].sprite, &cadre, screenSurface, &posPerso);
-                break;
-            case(2):
-                SDL_BlitSurface(tab_perso[i].sprite, &cadre, screenSurface, &posPerso);
-                break;
-            case(3):
-                SDL_BlitSurface(tab_perso[i].sprite, &cadre, screenSurface, &posPerso);
-                break;
-        }
-        SDL_UpdateWindowSurface(window);
-
-    }
-
-}
 
 void quitter(SDL_Window* window, SDL_Surface* screenSurface){
     SDL_FreeSurface(screenSurface);
@@ -293,4 +255,56 @@ int inputTailleMap(SDL_Window* window, SDL_Surface* screenSurface){
         }
     }
     return choixTaille;
+}
+
+
+void refresh_perso(SDL_Surface* screenSurface, Perso* joueur){
+    SDL_Rect pos;
+    
+    if(joueur->deplacement){
+        switch(joueur->direction){
+            case HAUT : 
+                pos.x = joueur->pos.x * TILE_SIZE;
+                pos.y = joueur->pos.y * TILE_SIZE + joueur->nbpas;
+                SDL_BlitSurface(joueur->sprite, &joueur->spriteClip[((joueur->nbpas/LIMITFRAME)%2)+4], screenSurface, &pos);
+                break;
+            case BAS :
+                pos.x = joueur->pos.x * TILE_SIZE;
+                pos.y = joueur->pos.y * TILE_SIZE - joueur->nbpas;
+                SDL_BlitSurface(joueur->sprite, &joueur->spriteClip[((joueur->nbpas/LIMITFRAME)%2)+1], screenSurface, &pos);
+                break;
+            case GAUCHE :
+                pos.x = joueur->pos.x * TILE_SIZE + joueur->nbpas;
+                pos.y = joueur->pos.y * TILE_SIZE;
+                SDL_BlitSurface(joueur->sprite, &joueur->spriteClip[((joueur->nbpas/LIMITFRAME)%2)+7], screenSurface, &pos);
+                break;
+            case DROITE :
+                pos.x = joueur->pos.x * TILE_SIZE - joueur->nbpas;
+                pos.y = joueur->pos.y * TILE_SIZE;
+                SDL_BlitSurface(joueur->sprite, &joueur->spriteClip[((joueur->nbpas/LIMITFRAME)%2)+10], screenSurface, &pos);
+                break;
+        }
+        joueur->nbpas--;
+        if(joueur->nbpas == 0){ /*S'il a fini de se deplacer*/
+            printf("PASSE \n");
+            joueur->deplacement = 0;
+        }
+    }else{
+        pos.x= joueur->pos.x*TILE_SIZE;
+        pos.y= joueur ->pos.y*TILE_SIZE;
+        switch(joueur->direction){
+            case HAUT :
+                SDL_BlitSurface(joueur->sprite, &joueur->spriteClip[3], screenSurface, &pos);
+                break;
+            case BAS :
+                SDL_BlitSurface(joueur->sprite, &joueur->spriteClip[0], screenSurface, &pos);
+                break;
+            case GAUCHE :
+                SDL_BlitSurface(joueur->sprite, &joueur->spriteClip[6], screenSurface, &pos);
+                break;
+            case DROITE :
+                SDL_BlitSurface(joueur->sprite, &joueur->spriteClip[9], screenSurface, &pos);
+                break;
+        }
+    }
 }

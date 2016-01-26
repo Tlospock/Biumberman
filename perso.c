@@ -3,7 +3,7 @@
 
 
 void init_perso(Square **carte, Perso* tab_perso, int nb_perso){
-    int i;
+    int i,j;
     for(i=0; i<nb_perso; i++)
     {
         tab_perso[i].id = i+1;
@@ -36,10 +36,10 @@ void init_perso(Square **carte, Perso* tab_perso, int nb_perso){
             tab_perso[i].sprite = SDL_LoadBMP("Img/P4.bmp");
             SDL_SetColorKey(tab_perso[i].sprite, 1, SDL_MapRGB(tab_perso[i].sprite->format, 0, 255, 0));
         }
-        tab_perso[i].frameEnCours = 0;
+        tab_perso[i].nbpas = 0;
         tab_perso[i].deplacement = 0;
 
-        tab_perso[i].direction = 0;
+        tab_perso[i].direction = BAS;
         tab_perso[i].vie = 1;
         tab_perso[i].nbBombePos = 0;
         tab_perso[i].nbBombeTot = 1;
@@ -48,49 +48,67 @@ void init_perso(Square **carte, Perso* tab_perso, int nb_perso){
         tab_perso[i].radius = 1;
         tab_perso[i].effetBonus = 0;
         tab_perso[i].poussee = 0;
+        
+        for(j=0; j< 12; j++){
+            tab_perso[i].spriteClip[j].x = j*TILE_SIZE;
+            tab_perso[i].spriteClip[j].y = i*TILE_SIZE;
+            tab_perso[i].spriteClip[j].w = TILE_SIZE;
+            tab_perso[i].spriteClip[j].h = TILE_SIZE;
+        }
     }
 }
 
-void deplacer(SDL_Window* window, SDL_Surface* screenSurface, Square** carte, int idJoueur, Perso* tab_joueur, int direction){
-    int temps = SDL_GetTicks();
-
-    SDL_Rect pos;
-    pos.x = 0;
-    pos.y = 0;
-
-    if(tab_joueur[idJoueur].deplacement)
-    {
-        switch(tab_joueur[idJoueur].direction)
+/*renvoie 1 si déplacement possible, sinon 0
+ * Si possible alors déplace.*/
+int deplacer(Square** carte, Perso* joueur){
+    if(joueur->nbpas ==0) {
+        switch(joueur->direction)
         {
             case(BAS):
-                if(tab_joueur[idJoueur].pos.y >= HAUTEUR_MAP-1)
+                if(joueur->pos.y >= HAUTEUR_MAP-1)
                     break;
-                if(carte[tab_joueur[idJoueur].pos.x][tab_joueur[idJoueur].pos.y+1].bloc.type!=0 || carte[tab_joueur[idJoueur].pos.x][tab_joueur[idJoueur].pos.y+1].bombe.radius!=0)
+                if(carte[joueur->pos.x][joueur->pos.y+1].bloc.type!=0 || carte[joueur->pos.x][joueur->pos.y+1].bombe.radius!=0)
                     break;
-                tab_joueur[idJoueur].pos.y++;
+                joueur->pos.y++;
+                joueur->nbpas = 39;
+                return 1;
                 break;
             case(HAUT):
-                if(tab_joueur[idJoueur].pos.y <= 0)
+                if(joueur->pos.y <= 0)
                     break;
-                if(carte[tab_joueur[idJoueur].pos.x][tab_joueur[idJoueur].pos.y-1].bloc.type!=0 || carte[tab_joueur[idJoueur].pos.x][tab_joueur[idJoueur].pos.y-1].bombe.radius!=0)
+                if(carte[joueur->pos.x][joueur->pos.y-1].bloc.type!=0 || carte[joueur->pos.x][joueur->pos.y-1].bombe.radius!=0)
                     break;
-                tab_joueur[idJoueur].pos.y--;
+                joueur->pos.y--;
+                joueur->nbpas = 39;
+                return 1;
                 break;
             case(GAUCHE):
-                if(tab_joueur[idJoueur].pos.x <= 0)
+                if(joueur->pos.x <= 0)
                     break;
-                if(carte[tab_joueur[idJoueur].pos.x-1][tab_joueur[idJoueur].pos.y].bloc.type!=0 || carte[tab_joueur[idJoueur].pos.x-1][tab_joueur[idJoueur].pos.y].bombe.radius!=0)
+                if(carte[joueur->pos.x-1][joueur->pos.y].bloc.type!=0 || carte[joueur->pos.x-1][joueur->pos.y].bombe.radius!=0)
                     break;
-                tab_joueur[idJoueur].pos.x--;
+                joueur->pos.x--;
+                joueur->nbpas = 39;
+                return 1;
+                break;
             case(DROITE):
-                if(tab_joueur[idJoueur].pos.x >= LONGUEUR_MAP-1)
+                if(joueur->pos.x >= LONGUEUR_MAP-1)
                     break;
-                if(carte[tab_joueur[idJoueur].pos.x+1][tab_joueur[idJoueur].pos.y].bloc.type!=0 || carte[tab_joueur[idJoueur].pos.x+1][tab_joueur[idJoueur].pos.y].bombe.radius!=0)
+                if(carte[joueur->pos.x+1][joueur->pos.y].bloc.type!=0 || carte[joueur->pos.x+1][joueur->pos.y].bombe.radius!=0)
                     break;
-                tab_joueur[idJoueur].pos.x++;
+                joueur->pos.x++;
+                joueur->nbpas = 39;
+                return 1;
+                break;
         }
+   
+    /*deplacement a pas pu se faire car obstacle*/
+    return 0; 
     }
-    refresh_map(window, screenSurface, carte);
+    else {
+        /*s'il lui reste des pas à faire, on le laisse finir (animation)*/
+        return 1;
+    }
 }
 
 void poseBombe(Square** carte, Perso* idJoueur){

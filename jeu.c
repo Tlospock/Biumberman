@@ -80,10 +80,9 @@ int jeu(){
     /*Initialisation de l'écran de jeu*/
     refresh_map(window, screenSurface, carte);
 
-     SDL_UpdateWindowSurface(window);
     int done =0;
     while(!quit){
-        while(SDL_PollEvent(&e)){
+        SDL_PollEvent(&e);
             /*User requests quit*/
             switch(e.type){
                 case SDL_QUIT:
@@ -93,26 +92,37 @@ int jeu(){
                     switch(e.key.keysym.scancode)
                     {
                         case SDL_SCANCODE_DOWN:
-                            printf("TEST BAS REUSSI\n\n");
+                            if(tab_joueur[0].nbpas==0){
+                                tab_joueur[0].direction = BAS;
+                                tab_joueur[0].deplacement = deplacer(carte, &tab_joueur[0]);
+                            }
                             break;
                         case SDL_SCANCODE_UP:
+                            if(tab_joueur[0].nbpas==0){
+                                tab_joueur[0].direction = HAUT;
+                                tab_joueur[0].deplacement = deplacer(carte, &tab_joueur[0]);
+                            }
                             break;
                         case SDL_SCANCODE_LEFT:
+                            if(tab_joueur[0].nbpas==0){
+                                tab_joueur[0].direction = GAUCHE;
+                                tab_joueur[0].deplacement = deplacer(carte, &tab_joueur[0]);
+                            }
                             break;
                         case SDL_SCANCODE_RIGHT:
+                            if(tab_joueur[0].nbpas==0){
+                                tab_joueur[0].direction = DROITE;
+                                tab_joueur[0].deplacement = deplacer(carte, &tab_joueur[0]);
+                            }
                             break;
                         default:
                             break;
                     }
                     break;
             }
-            /*menu_joueurs(window, screenSurface, e);*/
-
-            refreshPerso(window, screenSurface, carte, tab_joueur, nbPerso);
-
-
-
-        }
+            refresh_map(window, screenSurface, carte);
+            refresh_perso(screenSurface, &tab_joueur[0]);
+            SDL_UpdateWindowSurface(window);
     }
 
     /*Fin de la boucle de Jeu*/

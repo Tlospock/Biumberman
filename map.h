@@ -87,8 +87,9 @@ typedef struct perso{
     int radius;
     short int effetBonus;
 
-    int deplacement;
-    int frameEnCours;
+    int deplacement; /*BOOLEEN : bouge ou bouge pas*/
+    int nbpas;
+    SDL_Rect spriteClip[12];
     SDL_Surface* sprite;
 
 }Perso;
