@@ -19,6 +19,8 @@
 int jeu(){
     int i, j;
     int nbPerso=NB_PERSONNAGE_MAX;
+    hauteur_map = 15;
+    longueur_map = 14;
 
     /*Initialisation de la SDL*/
      short int success;
@@ -43,15 +45,15 @@ int jeu(){
     int choixTaille = inputTailleMap(window, screenSurface);
 
     /*Déclaration / allocation de la carte de jeu*/
-    Square **carte = (Square**)malloc(LONGUEUR_MAP*sizeof(Square*));
-    for(i=0; i<LONGUEUR_MAP; i++){
-        carte[i] = (Square*)malloc(HAUTEUR_MAP*sizeof(Square));
+    Square **carte = (Square**)malloc(longueur_map*sizeof(Square*));
+    for(i=0; i<longueur_map; i++){
+        carte[i] = (Square*)malloc(hauteur_map*sizeof(Square));
     }
 
     /*Déclaration/allocation du tableau de joueurs*/
     Perso* tab_joueur = (Perso*)malloc(nbPerso*sizeof(Perso));
 
-    init_map(carte, LONGUEUR_MAP, HAUTEUR_MAP);
+    init_map(carte, longueur_map, hauteur_map);
 
     init_perso(carte, tab_joueur, nbPerso);
 
@@ -59,9 +61,9 @@ int jeu(){
 
     /*Jeu*/
 
-    for(i=0; i<LONGUEUR_MAP; ++i)
+    for(i=0; i<longueur_map; ++i)
     {
-        for(j=0; j< HAUTEUR_MAP; ++j)
+        for(j=0; j< hauteur_map; ++j)
         {
             if(carte[i][j].bloc.type ==-1)
                 printf("0");
@@ -80,10 +82,9 @@ int jeu(){
     /*Initialisation de l'écran de jeu*/
     refresh_map(window, screenSurface, carte);
 
-     SDL_UpdateWindowSurface(window);
     int done =0;
     while(!quit){
-        while(SDL_PollEvent(&e)){
+        SDL_PollEvent(&e);
             /*User requests quit*/
             switch(e.type){
                 case SDL_QUIT:
@@ -93,26 +94,39 @@ int jeu(){
                     switch(e.key.keysym.scancode)
                     {
                         case SDL_SCANCODE_DOWN:
-                            printf("TEST BAS REUSSI\n\n");
+                            if(tab_joueur[0].nbpas==0){
+                                tab_joueur[0].direction = BAS;
+                                tab_joueur[0].deplacement = deplacer(carte, &tab_joueur[0]);
+                            }
                             break;
                         case SDL_SCANCODE_UP:
+                            if(tab_joueur[0].nbpas==0){
+                                tab_joueur[0].direction = HAUT;
+                                tab_joueur[0].deplacement = deplacer(carte, &tab_joueur[0]);
+                            }
                             break;
                         case SDL_SCANCODE_LEFT:
+                            if(tab_joueur[0].nbpas==0){
+                                tab_joueur[0].direction = GAUCHE;
+                                tab_joueur[0].deplacement = deplacer(carte, &tab_joueur[0]);
+                            }
                             break;
                         case SDL_SCANCODE_RIGHT:
+                            if(tab_joueur[0].nbpas==0){
+                                tab_joueur[0].direction = DROITE;
+                                tab_joueur[0].deplacement = deplacer(carte, &tab_joueur[0]);
+                            }
                             break;
+                        case SDL_SCANCODE_SPACE:
+                            poseBombe(carte, tab_joueur, 0, window, screenSurface);
                         default:
                             break;
                     }
                     break;
             }
-            /*menu_joueurs(window, screenSurface, e);*/
-
-            refreshPerso(window, screenSurface, carte, tab_joueur, nbPerso);
-
-
-
-        }
+            refresh_map(window, screenSurface, carte);
+            refresh_perso(screenSurface, &tab_joueur[0]);
+            SDL_UpdateWindowSurface(window);
     }
 
     /*Fin de la boucle de Jeu*/
@@ -122,7 +136,7 @@ int jeu(){
     quitter(window, screenSurface);
 
     /*désallouer le tableau de la carte*/
-    for(i=0; i<LONGUEUR_MAP; i++){
+    for(i=0; i<longueur_map; i++){
         free(carte[i]);
     }
     free(carte);

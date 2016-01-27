@@ -5,13 +5,14 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
-#include <SDL2/SDL.h>
+#include <SDL.h>
 
 #define IMINDESTRU 1
 #define IMAXDESTRU 3
 
-#define HAUTEUR_MAP 15      /* Multiple de 3 */
-#define LONGUEUR_MAP 16     /* Multiple de 2 */
+
+int hauteur_map;/* Multiple de 3 */
+int longueur_map;/* Multiple de 2 */
 #define TILE_SIZE 40
 #define NB_FRAME_ANIMATION 3
 #define NB_PERSONNAGE_MAX 4
@@ -42,7 +43,7 @@ typedef struct position{
 }Position;
 
 typedef struct bloc{
-    int type; /*-1 Indestructible, 0 air, 1 friable*/
+    int type; /*-1 Indestructible, 0 air, >1 friable*/
     int numSprite;
 }Bloc;
 
@@ -56,6 +57,7 @@ typedef struct square{
     Bloc bloc;
     Bombe bombe;
     short int bonus; /*SELON TABLEAU CI DESSOUS*/
+    short int danger;
 }Square;
 
 /* TABLEAU DES BONUS
@@ -87,8 +89,9 @@ typedef struct perso{
     int radius;
     short int effetBonus;
 
-    int deplacement;
-    int frameEnCours;
+    int deplacement; /*BOOLEEN : bouge ou bouge pas*/
+    int nbpas;
+    SDL_Rect spriteClip[12];
     SDL_Surface* sprite;
 
 }Perso;

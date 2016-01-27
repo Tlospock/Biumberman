@@ -26,6 +26,7 @@ void init_map(Square** carte, int longueur, int hauteur)
             carte[i][j].bonus =0;
 
             carte[i][j].idJoueur =0;
+            carte[i][j].danger=0;
 
         }
 	}
@@ -95,8 +96,8 @@ void generationBonus(Square** carte)
     int cpt = 1, i=0;
     while(cpt<12)
     {
-        x= rand() % (LONGUEUR_MAP);
-        y= rand() % (HAUTEUR_MAP);
+        x= rand() % (longueur_map);
+        y= rand() % (hauteur_map);
 
         if(carte[x][y].bloc.type >0 && carte[x][y].bonus == 0 )
         {
