@@ -1,15 +1,22 @@
 #ifndef _MAP_H
 #define _MAP_H
+#ifndef __LINUX__
+    #include <SDL2/SDL.h>
+#elif __WIN32__
+    #include <SDL.h>
+#endif
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
-#include <SDL2/SDL.h>
+
 
 #define IMINDESTRU 1
 #define IMAXDESTRU 3
 
+int hauteur_map;/* Multiple de 3 */
+int longueur_map;/* Multiple de 2 */
 #define TILE_SIZE 40
 #define NB_FRAME_ANIMATION 3
 #define NB_PERSONNAGE_MAX 4
@@ -34,16 +41,13 @@
 #define N_PVIE 4
 #define N_POUSSEE 6
 
-int longueur_map;
-int hauteur_map;
-
 typedef struct position{
     short int x;
     short int y;
 }Position;
 
 typedef struct bloc{
-    int type; /*-1 Indestructible, 0 air, 1 friable*/
+    int type; /*-1 Indestructible, 0 air, >1 friable*/
     int numSprite;
 }Bloc;
 
@@ -57,6 +61,7 @@ typedef struct square{
     Bloc bloc;
     Bombe bombe;
     short int bonus; /*SELON TABLEAU CI DESSOUS*/
+    short int danger;
 }Square;
 
 /* TABLEAU DES BONUS

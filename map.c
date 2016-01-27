@@ -26,6 +26,7 @@ void init_map(Square** carte, int longueur, int hauteur)
             carte[i][j].bonus =0;
 
             carte[i][j].idJoueur =0;
+            carte[i][j].danger=0;
 
         }
 	}

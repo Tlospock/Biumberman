@@ -45,6 +45,7 @@ int jeu(){
             SDL_FillRect(screenSurface, NULL, SDL_MapRGB((screenSurface)->format, 0xFF, 0xAA, 0xAA));
             int choixTaille = inputTailleMap(window, screenSurface);
             if(choixTaille>0){
+                
                 /*init petite carte*/
                 if(choixTaille==1){
                     hauteur_map = 15;
@@ -68,94 +69,83 @@ int jeu(){
                 init_map(carte, longueur_map, hauteur_map);
                 init_perso(carte, tab_joueur, nbPerso);
                 /*Fin Initialisation*/
-                /*Jeu*/
-           /*     for(i=0; i<longueur_map; ++i){
-                    for(j=0; j< hauteur_map; ++j){
-                        if(carte[i][j].bloc.type ==-1)
-                            printf("0");
-                        else if(carte[i][j].idJoueur!=0)
-                            printf("%d", carte[i][j].idJoueur);
-                        else
-                            printf("*");
-                    }
-                    printf("\n");
-                }
-                */
                 /*Boucle de Jeu*/
                 /*Initialisation de l'écran de jeu*/
                 while(!quit){
-                    SDL_PollEvent(&e);
-                        /*User requests quit*/
-                        switch(e.type){
-                            case SDL_QUIT:
-                                quit = 1;
-                                break;
-                            case SDL_KEYDOWN:
-                                switch(e.key.keysym.scancode)
-                                {
-                                    /*JOUEUR 1 A LES FLECHES*/
-                                    case SDL_SCANCODE_DOWN:
-                                        if(tab_joueur[0].nbpas==0){
-                                            tab_joueur[0].direction = BAS;
-                                            tab_joueur[0].deplacement = deplacer(carte, &tab_joueur[0]);
+                SDL_PollEvent(&e);
+                    /*User requests quit*/
+                    switch(e.type){
+                        case SDL_QUIT:
+                            quit = 1;
+                            break;
+                        case SDL_KEYDOWN:
+                            switch(e.key.keysym.scancode)
+                            {
+                                /*JOUEUR 1 A LES FLECHES*/
+                                case SDL_SCANCODE_DOWN:
+                                    if(tab_joueur[0].nbpas==0){
+                                        tab_joueur[0].direction = BAS;
+                                        tab_joueur[0].deplacement = deplacer(carte, &tab_joueur[0]);
+                                    }
+                                    break;
+                                case SDL_SCANCODE_UP:
+                                    if(tab_joueur[0].nbpas==0){
+                                        tab_joueur[0].direction = HAUT;
+                                        tab_joueur[0].deplacement = deplacer(carte, &tab_joueur[0]);
+                                    }
+                                    break;
+                                case SDL_SCANCODE_LEFT:
+                                    if(tab_joueur[0].nbpas==0){
+                                        tab_joueur[0].direction = GAUCHE;
+                                        tab_joueur[0].deplacement = deplacer(carte, &tab_joueur[0]);
+                                    }
+                                    break;
+                                case SDL_SCANCODE_RIGHT:
+                                    if(tab_joueur[0].nbpas==0){
+                                        tab_joueur[0].direction = DROITE;
+                                        tab_joueur[0].deplacement = deplacer(carte, &tab_joueur[0]);
+                                    }
+                                    break;
+                                    /*JOUEUR 2 A LES ZQSD*/
+                                    case SDL_SCANCODE_S :
+                                        if(nbJoueurs > 1 && tab_joueur[1].nbpas==0){
+                                            tab_joueur[1].direction = BAS;
+                                            tab_joueur[1].deplacement = deplacer(carte, &tab_joueur[1]);
                                         }
                                         break;
-                                    case SDL_SCANCODE_UP:
-                                        if(tab_joueur[0].nbpas==0){
-                                            tab_joueur[0].direction = HAUT;
-                                            tab_joueur[0].deplacement = deplacer(carte, &tab_joueur[0]);
+                                    case SDL_SCANCODE_W :
+                                        if(nbJoueurs > 1 && tab_joueur[1].nbpas==0){
+                                            tab_joueur[1].direction = HAUT;
+                                            tab_joueur[1].deplacement = deplacer(carte, &tab_joueur[1]);
                                         }
                                         break;
-                                    case SDL_SCANCODE_LEFT:
-                                        if(tab_joueur[0].nbpas==0){
-                                            tab_joueur[0].direction = GAUCHE;
-                                            tab_joueur[0].deplacement = deplacer(carte, &tab_joueur[0]);
+                                    case SDL_SCANCODE_A :
+                                        if(nbJoueurs > 1 && tab_joueur[1].nbpas==0){
+                                            tab_joueur[1].direction = GAUCHE;
+                                            tab_joueur[1].deplacement = deplacer(carte, &tab_joueur[1]);
                                         }
                                         break;
-                                    case SDL_SCANCODE_RIGHT:
-                                        if(tab_joueur[0].nbpas==0){
-                                            tab_joueur[0].direction = DROITE;
-                                            tab_joueur[0].deplacement = deplacer(carte, &tab_joueur[0]);
+                                    case SDL_SCANCODE_D :
+                                        if(nbJoueurs > 1 && tab_joueur[1].nbpas==0){
+                                            tab_joueur[1].direction = DROITE;
+                                            tab_joueur[1].deplacement = deplacer(carte, &tab_joueur[1]);
                                         }
                                         break;
-                                        /*JOUEUR 2 A LES ZQSD*/
-                                        case SDL_SCANCODE_S :
-                                            if(nbJoueurs > 1 && tab_joueur[1].nbpas==0){
-                                                tab_joueur[1].direction = BAS;
-                                                tab_joueur[1].deplacement = deplacer(carte, &tab_joueur[1]);
-                                            }
+                                        case SDL_SCANCODE_SPACE:
+                                            poseBombe(carte, tab_joueur, 0, window, screenSurface);
                                             break;
-                                        case SDL_SCANCODE_W :
-                                            if(nbJoueurs > 1 && tab_joueur[1].nbpas==0){
-                                                tab_joueur[1].direction = HAUT;
-                                                tab_joueur[1].deplacement = deplacer(carte, &tab_joueur[1]);
-                                            }
-                                            break;
-                                        case SDL_SCANCODE_A :
-                                            if(nbJoueurs > 1 && tab_joueur[1].nbpas==0){
-                                                tab_joueur[1].direction = GAUCHE;
-                                                tab_joueur[1].deplacement = deplacer(carte, &tab_joueur[1]);
-                                            }
-                                            break;
-                                        case SDL_SCANCODE_D :
-                                            if(nbJoueurs > 1 && tab_joueur[1].nbpas==0){
-                                                tab_joueur[1].direction = DROITE;
-                                                tab_joueur[1].deplacement = deplacer(carte, &tab_joueur[1]);
-                                            }
-                                            break;
-                                    default:
-                                        break;
-                                }
-                                break;
-                        }
-                        refresh_map(window, screenSurface, carte);
-                        
-                        for(i=0; i<nbPerso; i++){
-                            refresh_perso(screenSurface, &tab_joueur[i]);
-                        }
-                        SDL_UpdateWindowSurface(window);
-                }
-
+                                default:
+                                    break;
+                            }
+                            break;
+                    }
+                    refresh_map(window, screenSurface, carte);
+                    
+                    for(i=0; i<nbPerso; i++){
+                        refresh_perso(screenSurface, &tab_joueur[i]);
+                    }
+                    SDL_UpdateWindowSurface(window);
+            }
                 /*Fin de la boucle de Jeu*/
 
                 /*Quitter la SDL*/

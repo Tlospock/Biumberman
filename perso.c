@@ -48,7 +48,7 @@ void init_perso(Square **carte, Perso* tab_perso, int nb_perso){
         tab_perso[i].radius = 1;
         tab_perso[i].effetBonus = 0;
         tab_perso[i].poussee = 0;
-        
+
         for(j=0; j< 12; j++){
             tab_perso[i].spriteClip[j].x = j*TILE_SIZE;
             tab_perso[i].spriteClip[j].y = 0;
@@ -101,9 +101,8 @@ int deplacer(Square** carte, Perso* joueur){
                 return 1;
                 break;
         }
-   
     /*deplacement a pas pu se faire car obstacle*/
-    return 0; 
+    return 0;
     }
     else {
         /*s'il lui reste des pas à faire, on le laisse finir (animation)*/
@@ -111,14 +110,59 @@ int deplacer(Square** carte, Perso* joueur){
     }
 }
 
-void poseBombe(Square** carte, Perso* idJoueur){
+void poseBombe(Square** carte, Perso* tab_perso, int idJoueur, SDL_Window* window, SDL_Surface* screenSurface){
+
+    int i=0, j=1;
+
+
     /*Si la case est bien vide*/
-    if(carte[idJoueur->pos.x][idJoueur->pos.y].bombe.radius==0){
+    if(carte[tab_perso[idJoueur].pos.x][tab_perso[idJoueur].pos.y].bombe.radius==0){
     /*Si le joueur peut bien poser une bombe*/
-        if(idJoueur->nbBombeTot - idJoueur->nbBombePos > 0){
-            idJoueur->nbBombePos++;
-            carte[idJoueur->pos.x][idJoueur->pos.y].bombe.decompte = 2;
-            carte[idJoueur->pos.x][idJoueur->pos.y].bombe.radius = idJoueur->radius;
+        if(tab_perso[idJoueur].nbBombeTot - tab_perso[idJoueur].nbBombePos > 0){
+            tab_perso[idJoueur].nbBombePos++;
+            carte[tab_perso[idJoueur].pos.x][tab_perso[idJoueur].pos.y].bombe.decompte = SDL_GetTicks();
+            carte[tab_perso[idJoueur].pos.x][tab_perso[idJoueur].pos.y].bombe.radius = tab_perso[idJoueur].radius;
+
+
+            /*On met à jour le danger dans les cases concerné par le radius*/
+            int posX = tab_perso[idJoueur].pos.x;
+            int posY = tab_perso[idJoueur].pos.y;
+            while(i<4)
+            {
+                while(j<tab_perso[idJoueur].radius)
+                {
+                    switch(i)
+                    {
+                        case 0:
+                            if(posY >0 && carte[posX][posY-j].bloc.type != 0)
+                                j=tab_perso[idJoueur].radius;
+                            else
+                                carte[posX][posY-j].danger=1;
+
+                            break;
+                        case 1:
+                            if(posY <hauteur_map-1 && carte[posX][posY+j].bloc.type != 0)
+                                j=tab_perso[idJoueur].radius;
+                            else
+                                carte[posX][posY-j].danger=1;
+                            break;
+                        case 2:
+                            if(posX >0 && carte[posX-j][posY].bloc.type != 0)
+                                j=tab_perso[idJoueur].radius;
+                            else
+                                carte[posX][posY-j].danger=1;
+                            break;
+                        default:
+                            if(posX <longueur_map-1 && carte[posX+j][posY].bloc.type != 0)
+                                j=tab_perso[idJoueur].radius;
+                            else
+                                carte[posX][posY-j].danger=1;
+                            break;
+                    }
+                }
+                j=1;
+                ++i;
+            }
 
             /*Animation de pose de bombe*/
         }else{
@@ -139,7 +183,7 @@ void exploser(Square** carte, int posBombeX, int posBombeY){
         while(cpt < 4 && v!=0)
         {
             if(carte[posBombeX+v][posBombeY+h].bombe.radius!=0 && carte[posBombeX+v][posBombeY+h].bombe.decompte==0)
-            exploser(carte, posBombeX+h, posBombeY+v);
+                exploser(carte, posBombeX+h, posBombeY+v);
             else
             {
                 if(carte[posBombeX+v][posBombeY+h].bloc.type>0)

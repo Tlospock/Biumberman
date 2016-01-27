@@ -9,7 +9,7 @@ int initierSDL(SDL_Window** window, SDL_Surface** screenSurface){
         success = 0;
     }else{
         /*Creation fenetre*/
-        *window = SDL_CreateWindow("The Legend of Biumbercat", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, longueur_map*TILE_SIZE, hauteur_map*TILE_SIZE, SDL_WINDOW_SHOWN);
+        *window = SDL_CreateWindow("The Legend of Biumbercat", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, longueur_map*TILE_SIZE+2*TILE_SIZE, hauteur_map*TILE_SIZE+2*TILE_SIZE, SDL_WINDOW_SHOWN);
         if(*window == NULL){
             printf("Fenetre a pas pu etre creee! SDL_Error: %s\n", SDL_GetError());
             success = 0;
@@ -37,37 +37,48 @@ void refresh_map(SDL_Window* window, SDL_Surface* screenSurface, Square** carte)
     SDL_Surface *tile3 = SDL_LoadBMP("Img/3.bmp");
     SDL_Surface *hard = SDL_LoadBMP("Img/hard.bmp");
     SDL_Surface *airGround = SDL_LoadBMP("Img/air.bmp");
+    SDL_Surface *bomb1 = SDL_LoadBMP("Img/bomb1.bmp");
+    SDL_Rect rect;
 
     SDL_Rect posTile;
     posTile.x = 0;
     posTile.y = 0;
 
-    for(i=0; i<longueur_map; ++i)
+    for(i=0; i<longueur_map+2; ++i)
     {
         posTile.x = i*40;
 
-        for(j=0; j<hauteur_map; ++j)
+        for(j=0; j<hauteur_map+2; ++j)
         {
             posTile.y = j*40;
-
-            switch(carte[i][j].bloc.type)
+            if(i==0 || j==0 || i == longueur_map+1 || j == hauteur_map+1)
+                SDL_BlitSurface(hard, NULL, screenSurface, &posTile);
+            else
             {
-                case 1:
-                    SDL_BlitSurface(tile1, NULL, screenSurface, &posTile);
-                    break;
-                case 2:
-                    SDL_BlitSurface(tile2, NULL, screenSurface, &posTile);
-                    break;
-                case 3:
-                    SDL_BlitSurface(tile3, NULL, screenSurface, &posTile);
-                    break;
-                case -1:
-                    SDL_BlitSurface(hard, NULL, screenSurface, &posTile);
-                    break;
-                case 0:
-                    SDL_BlitSurface(airGround, NULL, screenSurface, &posTile);
-                    break;
+                switch(carte[i-1][j-1].bloc.type)
+                {
+                    case 1:
+                        SDL_BlitSurface(tile1, NULL, screenSurface, &posTile);
+                        break;
+                    case 2:
+                        SDL_BlitSurface(tile2, NULL, screenSurface, &posTile);
+                        break;
+                    case 3:
+                        SDL_BlitSurface(tile3, NULL, screenSurface, &posTile);
+                        break;
+                    case -1:
+                        SDL_BlitSurface(hard, NULL, screenSurface, &posTile);
+                        break;
+                    case 0:
+                        SDL_BlitSurface(airGround, NULL, screenSurface, &posTile);
+                        break;
+                }
+                if(carte[i-1][j-1].bombe.radius>0)
+                {
+                    SDL_BlitSurface(bomb1, NULL, screenSurface, &posTile);
+                }
             }
+
         }
     }
     SDL_FreeSurface(tile1);
@@ -75,6 +86,7 @@ void refresh_map(SDL_Window* window, SDL_Surface* screenSurface, Square** carte)
     SDL_FreeSurface(tile3);
     SDL_FreeSurface(hard);
     SDL_FreeSurface(airGround);
+    SDL_FreeSurface(bomb1);
 }
 
 
@@ -92,7 +104,7 @@ void obtenirCheminImage(char* nomFichier){
 /*Affiche le choix du nb de joueurs, renvoie ce nb de joueurs*/
 int inputNbJoueurs(SDL_Window* window, SDL_Surface* screenSurface, int nbPerso){
     int nbjoueurs=0;
-    
+
  /*AFFICHAGE DES BOUTONS
   * bouton1 = 1joueur, bouton2= 2joueurs, ...*/
     SDL_Surface *ecriteau = NULL;
@@ -174,17 +186,17 @@ int inputNbPersos(SDL_Window* window, SDL_Surface* screenSurface){
     SDL_Rect ecr;
     ecr.x = (longueur_map*TILE_SIZE)/2 - 200;
     ecr.y = 30;
-  
-    SDL_Surface *bouton1 = NULL; 
+
+    SDL_Surface *bouton1 = NULL;
     SDL_Rect b1;
     b1.x = ((longueur_map*TILE_SIZE)/2)-20-50;
     b1.y = ((hauteur_map*TILE_SIZE)/2)-20-50;
-    
+
     SDL_Surface* bouton2 = NULL;
     SDL_Rect b2;
     b2.x = (longueur_map*TILE_SIZE)/2-20-50;
     b2.y = (hauteur_map*TILE_SIZE)/2-20+50;
-    
+
     SDL_Surface* bouton3 = NULL;
     SDL_Rect b3;
     b3.x = (longueur_map*TILE_SIZE)/2-20+50;
@@ -215,15 +227,15 @@ int inputNbPersos(SDL_Window* window, SDL_Surface* screenSurface){
     SDL_BlitSurface(bouton3, NULL, screenSurface, &b3);
     SDL_BlitSurface(bouton4, NULL, screenSurface, &b4);
     SDL_BlitSurface(ecriteau, NULL, screenSurface, &ecr);
-    
+
     SDL_FreeSurface(bouton1);
     SDL_FreeSurface(bouton2);
     SDL_FreeSurface(bouton3);
     SDL_FreeSurface(bouton4);
     SDL_FreeSurface(ecriteau);
-    
+
     SDL_UpdateWindowSurface(window);
-    
+
 /*GESTION DU CLIC SUR LE BOUTON*/
     /*Si clic, vérifier la pos de la souris, si sur un bouton, alors sélectionner nb de joueurs*/
     while(nbPersos ==0){
@@ -261,23 +273,23 @@ int inputTailleMap(SDL_Window* window, SDL_Surface* screenSurface){
     int choixTaille = 0;
     SDL_Event e;
     int x, y;
-    
+
     /*AFFICHAGE DES BOUTONS*/
     SDL_Surface *ecriteau = NULL;
     SDL_Rect ecr;
     ecr.x = (longueur_map*TILE_SIZE)/2 - 200;
     ecr.y = 30;
-    
+
     SDL_Surface *bouton_petit = NULL;
     SDL_Rect bp;
     bp.x = (longueur_map*TILE_SIZE)/2 - 100;
     bp.y = (hauteur_map*TILE_SIZE)/2 - 50;
-    
+
     SDL_Surface *bouton_grand = NULL;
     SDL_Rect bg;
     bg.x = (longueur_map*TILE_SIZE)/2 - 100;
     bg.y = (hauteur_map*TILE_SIZE)/2 + 50;
-    
+
     ecriteau = SDL_LoadBMP("Img/ecriteau_taillemap.bmp");
     bouton_petit = SDL_LoadBMP("Img/choix_petit.bmp");
     bouton_grand = SDL_LoadBMP("Img/choix_grand.bmp");
@@ -285,18 +297,18 @@ int inputTailleMap(SDL_Window* window, SDL_Surface* screenSurface){
         printf("\nBoutons taille map erreurs : %s", SDL_GetError());
         exit(EXIT_FAILURE);
     }
-    
+
     /*AFFICHER*/
     SDL_BlitSurface(ecriteau, NULL, screenSurface, &ecr);
     SDL_BlitSurface(bouton_petit, NULL, screenSurface, &bp);
     SDL_BlitSurface(bouton_grand, NULL, screenSurface, &bg);
- 
+
    SDL_UpdateWindowSurface(window);
-    
+
     SDL_FreeSurface(bouton_grand);
     SDL_FreeSurface(bouton_petit);
     SDL_FreeSurface(ecriteau);
-    
+
     /*GESTION CLIC BOUTON*/
     while(choixTaille==0){
         SDL_WaitEvent(&e);
@@ -322,26 +334,28 @@ int inputTailleMap(SDL_Window* window, SDL_Surface* screenSurface){
 
 void refresh_perso(SDL_Surface* screenSurface, Perso* joueur){
     SDL_Rect pos;
+
     if(joueur->deplacement){
         switch(joueur->direction){
-            case HAUT : 
-                pos.x = joueur->pos.x * TILE_SIZE;
-                pos.y = joueur->pos.y * TILE_SIZE + joueur->nbpas;
+            case HAUT :
+                pos.x = joueur->pos.x * TILE_SIZE+TILE_SIZE;
+                pos.y = joueur->pos.y * TILE_SIZE+TILE_SIZE + joueur->nbpas;
                 SDL_BlitSurface(joueur->sprite, &joueur->spriteClip[((joueur->nbpas/LIMITFRAME)%2)+4], screenSurface, &pos);
                 break;
             case BAS :
-                pos.x = joueur->pos.x * TILE_SIZE;
-                pos.y = joueur->pos.y * TILE_SIZE - joueur->nbpas;
+                pos.x = joueur->pos.x * TILE_SIZE+TILE_SIZE;
+                pos.y = joueur->pos.y * TILE_SIZE+TILE_SIZE - joueur->nbpas;
                 SDL_BlitSurface(joueur->sprite, &joueur->spriteClip[((joueur->nbpas/LIMITFRAME)%2)+1], screenSurface, &pos);
                 break;
             case GAUCHE :
-                pos.x = joueur->pos.x * TILE_SIZE + joueur->nbpas;
-                pos.y = joueur->pos.y * TILE_SIZE;
+                pos.x = joueur->pos.x * TILE_SIZE+TILE_SIZE + joueur->nbpas;
+                pos.y = joueur->pos.y * TILE_SIZE+TILE_SIZE;
                 SDL_BlitSurface(joueur->sprite, &joueur->spriteClip[((joueur->nbpas/LIMITFRAME)%2)+7], screenSurface, &pos);
                 break;
             case DROITE :
-                pos.x = joueur->pos.x * TILE_SIZE - joueur->nbpas;
-                pos.y = joueur->pos.y * TILE_SIZE;
+                pos.x = joueur->pos.x * TILE_SIZE+TILE_SIZE - joueur->nbpas;
+                pos.y = joueur->pos.y * TILE_SIZE+TILE_SIZE;
+
                 SDL_BlitSurface(joueur->sprite, &joueur->spriteClip[((joueur->nbpas/LIMITFRAME)%2)+10], screenSurface, &pos);
                 break;
         }
@@ -349,9 +363,9 @@ void refresh_perso(SDL_Surface* screenSurface, Perso* joueur){
         if(joueur->nbpas == 0){ /*S'il a fini de se deplacer*/
             joueur->deplacement = 0;
         }
-    }else{ /*s'il bouge pas*/
-        pos.x= joueur->pos.x*TILE_SIZE;
-        pos.y= joueur ->pos.y*TILE_SIZE;
+    }else{ /*S'il bouge pas*/
+        pos.x= joueur->pos.x*TILE_SIZE+TILE_SIZE;
+        pos.y= joueur ->pos.y*TILE_SIZE+TILE_SIZE;
         switch(joueur->direction){
             case HAUT :
                 SDL_BlitSurface(joueur->sprite, &joueur->spriteClip[3], screenSurface, &pos);
