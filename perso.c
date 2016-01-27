@@ -48,7 +48,11 @@ void init_perso(Square **carte, Perso* tab_perso, int nb_perso){
         tab_perso[i].radius = 1;
         tab_perso[i].effetBonus = 0;
         tab_perso[i].poussee = 0;
+<<<<<<< HEAD
 
+=======
+        
+>>>>>>> 2bbeb09f8b469feb9bc07a60f8af19b77ed1b51c
         for(j=0; j< 12; j++){
             tab_perso[i].spriteClip[j].x = j*TILE_SIZE;
             tab_perso[i].spriteClip[j].y = i*TILE_SIZE;
@@ -65,7 +69,11 @@ int deplacer(Square** carte, Perso* joueur){
         switch(joueur->direction)
         {
             case(BAS):
+<<<<<<< HEAD
                 if(joueur->pos.y >= hauteur_map-1)
+=======
+                if(joueur->pos.y >= HAUTEUR_MAP-1)
+>>>>>>> 2bbeb09f8b469feb9bc07a60f8af19b77ed1b51c
                     break;
                 if(carte[joueur->pos.x][joueur->pos.y+1].bloc.type!=0 || carte[joueur->pos.x][joueur->pos.y+1].bombe.radius!=0)
                     break;
@@ -92,7 +100,11 @@ int deplacer(Square** carte, Perso* joueur){
                 return 1;
                 break;
             case(DROITE):
+<<<<<<< HEAD
                 if(joueur->pos.x >= longueur_map-1)
+=======
+                if(joueur->pos.x >= LONGUEUR_MAP-1)
+>>>>>>> 2bbeb09f8b469feb9bc07a60f8af19b77ed1b51c
                     break;
                 if(carte[joueur->pos.x+1][joueur->pos.y].bloc.type!=0 || carte[joueur->pos.x+1][joueur->pos.y].bombe.radius!=0)
                     break;
@@ -101,9 +113,15 @@ int deplacer(Square** carte, Perso* joueur){
                 return 1;
                 break;
         }
+<<<<<<< HEAD
 
     /*deplacement a pas pu se faire car obstacle*/
     return 0;
+=======
+   
+    /*deplacement a pas pu se faire car obstacle*/
+    return 0; 
+>>>>>>> 2bbeb09f8b469feb9bc07a60f8af19b77ed1b51c
     }
     else {
         /*s'il lui reste des pas à faire, on le laisse finir (animation)*/

@@ -272,6 +272,7 @@ int inputTailleMap(SDL_Window* window, SDL_Surface* screenSurface){
 
 void refresh_perso(SDL_Surface* screenSurface, Perso* joueur){
     SDL_Rect pos;
+<<<<<<< HEAD
 
     if(joueur->deplacement){
         switch(joueur->direction){
@@ -293,16 +294,48 @@ void refresh_perso(SDL_Surface* screenSurface, Perso* joueur){
             case DROITE :
                 pos.x = joueur->pos.x * TILE_SIZE+TILE_SIZE - joueur->nbpas;
                 pos.y = joueur->pos.y * TILE_SIZE+TILE_SIZE;
+=======
+    
+    if(joueur->deplacement){
+        switch(joueur->direction){
+            case HAUT : 
+                pos.x = joueur->pos.x * TILE_SIZE;
+                pos.y = joueur->pos.y * TILE_SIZE + joueur->nbpas;
+                SDL_BlitSurface(joueur->sprite, &joueur->spriteClip[((joueur->nbpas/LIMITFRAME)%2)+4], screenSurface, &pos);
+                break;
+            case BAS :
+                pos.x = joueur->pos.x * TILE_SIZE;
+                pos.y = joueur->pos.y * TILE_SIZE - joueur->nbpas;
+                SDL_BlitSurface(joueur->sprite, &joueur->spriteClip[((joueur->nbpas/LIMITFRAME)%2)+1], screenSurface, &pos);
+                break;
+            case GAUCHE :
+                pos.x = joueur->pos.x * TILE_SIZE + joueur->nbpas;
+                pos.y = joueur->pos.y * TILE_SIZE;
+                SDL_BlitSurface(joueur->sprite, &joueur->spriteClip[((joueur->nbpas/LIMITFRAME)%2)+7], screenSurface, &pos);
+                break;
+            case DROITE :
+                pos.x = joueur->pos.x * TILE_SIZE - joueur->nbpas;
+                pos.y = joueur->pos.y * TILE_SIZE;
+>>>>>>> 2bbeb09f8b469feb9bc07a60f8af19b77ed1b51c
                 SDL_BlitSurface(joueur->sprite, &joueur->spriteClip[((joueur->nbpas/LIMITFRAME)%2)+10], screenSurface, &pos);
                 break;
         }
         joueur->nbpas--;
         if(joueur->nbpas == 0){ /*S'il a fini de se deplacer*/
+<<<<<<< HEAD
             joueur->deplacement = 0;
         }
     }else{
         pos.x= joueur->pos.x*TILE_SIZE+TILE_SIZE;
         pos.y= joueur ->pos.y*TILE_SIZE+TILE_SIZE;
+=======
+            printf("PASSE \n");
+            joueur->deplacement = 0;
+        }
+    }else{
+        pos.x= joueur->pos.x*TILE_SIZE;
+        pos.y= joueur ->pos.y*TILE_SIZE;
+>>>>>>> 2bbeb09f8b469feb9bc07a60f8af19b77ed1b51c
         switch(joueur->direction){
             case HAUT :
                 SDL_BlitSurface(joueur->sprite, &joueur->spriteClip[3], screenSurface, &pos);
@@ -318,4 +351,8 @@ void refresh_perso(SDL_Surface* screenSurface, Perso* joueur){
                 break;
         }
     }
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> 2bbeb09f8b469feb9bc07a60f8af19b77ed1b51c
