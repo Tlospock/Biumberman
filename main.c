@@ -1,6 +1,8 @@
 #include "map.h"
 #include "affichage.h"
 
+
+
 int main(int argc, char* args[])
 {
     srand(time(NULL));

@@ -15,23 +15,23 @@ void init_perso(Square **carte, Perso* tab_perso, int nb_perso){
             tab_perso[i].sprite = SDL_LoadBMP("Img/P1.bmp");
             SDL_SetColorKey(tab_perso[i].sprite, 1, SDL_MapRGB(tab_perso[i].sprite->format, 0, 255, 0));
         }else if(i==1){
-            tab_perso[i].pos.x = LONGUEUR_MAP-2;
+            tab_perso[i].pos.x = longueur_map-2;
             tab_perso[i].pos.y = 1;
-            carte[LONGUEUR_MAP-2][1].idJoueur = 2;
+            carte[longueur_map-2][1].idJoueur = 2;
 
             tab_perso[i].sprite = SDL_LoadBMP("Img/P2.bmp");
             SDL_SetColorKey(tab_perso[i].sprite, 1, SDL_MapRGB(tab_perso[i].sprite->format, 0, 255, 0));
         }else if(i==2){
             tab_perso[i].pos.x = 1;
-            tab_perso[i].pos.y = HAUTEUR_MAP-2;
-            carte[1][HAUTEUR_MAP-2].idJoueur = 3;
+            tab_perso[i].pos.y = hauteur_map-2;
+            carte[1][hauteur_map-2].idJoueur = 3;
 
             tab_perso[i].sprite = SDL_LoadBMP("Img/P3.bmp");
             SDL_SetColorKey(tab_perso[i].sprite, 1, SDL_MapRGB(tab_perso[i].sprite->format, 0, 255, 0));
         }else if(i==3){
-            tab_perso[i].pos.x = LONGUEUR_MAP-2;
-            tab_perso[i].pos.y = HAUTEUR_MAP-2;
-            carte[LONGUEUR_MAP-2][HAUTEUR_MAP-2].idJoueur = 4;
+            tab_perso[i].pos.x = longueur_map-2;
+            tab_perso[i].pos.y = hauteur_map-2;
+            carte[longueur_map-2][hauteur_map-2].idJoueur = 4;
 
             tab_perso[i].sprite = SDL_LoadBMP("Img/P4.bmp");
             SDL_SetColorKey(tab_perso[i].sprite, 1, SDL_MapRGB(tab_perso[i].sprite->format, 0, 255, 0));
@@ -51,7 +51,7 @@ void init_perso(Square **carte, Perso* tab_perso, int nb_perso){
         
         for(j=0; j< 12; j++){
             tab_perso[i].spriteClip[j].x = j*TILE_SIZE;
-            tab_perso[i].spriteClip[j].y = i*TILE_SIZE;
+            tab_perso[i].spriteClip[j].y = 0;
             tab_perso[i].spriteClip[j].w = TILE_SIZE;
             tab_perso[i].spriteClip[j].h = TILE_SIZE;
         }
@@ -65,7 +65,7 @@ int deplacer(Square** carte, Perso* joueur){
         switch(joueur->direction)
         {
             case(BAS):
-                if(joueur->pos.y >= HAUTEUR_MAP-1)
+                if(joueur->pos.y >= hauteur_map-1)
                     break;
                 if(carte[joueur->pos.x][joueur->pos.y+1].bloc.type!=0 || carte[joueur->pos.x][joueur->pos.y+1].bombe.radius!=0)
                     break;
@@ -92,7 +92,7 @@ int deplacer(Square** carte, Perso* joueur){
                 return 1;
                 break;
             case(DROITE):
-                if(joueur->pos.x >= LONGUEUR_MAP-1)
+                if(joueur->pos.x >= longueur_map-1)
                     break;
                 if(carte[joueur->pos.x+1][joueur->pos.y].bloc.type!=0 || carte[joueur->pos.x+1][joueur->pos.y].bombe.radius!=0)
                     break;

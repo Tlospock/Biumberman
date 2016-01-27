@@ -10,8 +10,6 @@
 #define IMINDESTRU 1
 #define IMAXDESTRU 3
 
-#define HAUTEUR_MAP 15      /* Multiple de 3 */
-#define LONGUEUR_MAP 16     /* Multiple de 2 */
 #define TILE_SIZE 40
 #define NB_FRAME_ANIMATION 3
 #define NB_PERSONNAGE_MAX 4
@@ -35,6 +33,9 @@
 #define N_MBOMBE 10
 #define N_PVIE 4
 #define N_POUSSEE 6
+
+int longueur_map;
+int hauteur_map;
 
 typedef struct position{
     short int x;

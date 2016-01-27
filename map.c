@@ -95,8 +95,8 @@ void generationBonus(Square** carte)
     int cpt = 1, i=0;
     while(cpt<12)
     {
-        x= rand() % (LONGUEUR_MAP);
-        y= rand() % (HAUTEUR_MAP);
+        x= rand() % (longueur_map);
+        y= rand() % (hauteur_map);
 
         if(carte[x][y].bloc.type >0 && carte[x][y].bonus == 0 )
         {

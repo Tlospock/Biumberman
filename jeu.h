@@ -3,6 +3,7 @@
 
 #include "affichage.h"
 #include "perso.h"
+#include "map.h"
 
 /*retourne le nb de joueurs*/
 int menu_joueurs(SDL_Window* window, SDL_Surface* screenSurface, SDL_Event event);
