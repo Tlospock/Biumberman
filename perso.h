@@ -18,7 +18,12 @@ void init_perso(Square **carte, Perso* tab_perso, int nb_perso);
 
 int deplacer(Square** carte, Perso* joueur);
 
-void poseBombe(Square** carte, Perso* tab_perso, int numJoueur, SDL_Window* window, SDL_Surface* screenSurface);
+void check_bomb(Square** carte, Perso* tab_joueur);
 
-void exploser(Square** carte, int posBombeX, int posBombeY);
+void poseBombe(Square** carte, Perso* joueur, SDL_Window* window, SDL_Surface* screenSurface);
+
+void mourir(Square** carte, Perso* joueur);
+
+void exploser(Square** carte, int posBombeX, int posBombeY, Perso* tab_joueur);
+
 #endif /* _PERSO_H*/
