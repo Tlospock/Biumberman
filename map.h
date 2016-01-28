@@ -1,10 +1,10 @@
 #ifndef _MAP_H
 #define _MAP_H
-#ifndef __LINUX__
+/*#ifndef __LINUX__
     #include <SDL2/SDL.h>
-#elif __WIN32__
+#elif __WIN32__*/
     #include <SDL.h>
-#endif
+/*#endif*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -17,9 +17,12 @@
 
 int hauteur_map;/* Multiple de 3 */
 int longueur_map;/* Multiple de 2 */
+
 #define TILE_SIZE 40
 #define NB_FRAME_ANIMATION 3
 #define NB_PERSONNAGE_MAX 4
+
+#define COMPTE_A_REBOURS 2000
 
 /*Définition des directions*/
 #define BAS 0
@@ -54,7 +57,14 @@ typedef struct bloc{
 typedef struct bombe{
     int decompte;
     int radius;
+    int proprio;
 }Bombe;
+
+typedef struct caseIA{
+    Position posCase;
+    Position posCasePrec;
+    int hopNb;
+}CaseIA;
 
 typedef struct square{
     short int idJoueur;
