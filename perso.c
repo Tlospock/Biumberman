@@ -61,7 +61,7 @@ void init_perso(Square **carte, Perso* tab_perso, int nb_perso){
 /*renvoie 1 si déplacement possible, sinon 0
  * Si possible alors déplace.*/
 int deplacer(Square** carte, Perso* joueur){
-    if(joueur->nbpas ==0) {
+    if(joueur->vie > 0 && joueur->nbpas ==0) {
         switch(joueur->direction)
         {
             case(BAS):

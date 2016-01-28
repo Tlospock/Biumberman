@@ -38,7 +38,6 @@ void refresh_map(SDL_Window* window, SDL_Surface* screenSurface, Square** carte)
     SDL_Surface *hard = SDL_LoadBMP("Img/hard.bmp");
     SDL_Surface *airGround = SDL_LoadBMP("Img/air.bmp");
     SDL_Surface *bomb1 = SDL_LoadBMP("Img/bomb1.bmp");
-    SDL_Rect rect;
 
     SDL_Rect posTile;
     posTile.x = 0;
@@ -335,7 +334,7 @@ int inputTailleMap(SDL_Window* window, SDL_Surface* screenSurface){
 void refresh_perso(SDL_Surface* screenSurface, Perso* joueur){
     SDL_Rect pos;
 
-    if(joueur->deplacement){
+    if(joueur->vie > 0 && joueur->deplacement){
         switch(joueur->direction){
             case HAUT :
                 pos.x = joueur->pos.x * TILE_SIZE+TILE_SIZE;
@@ -363,7 +362,7 @@ void refresh_perso(SDL_Surface* screenSurface, Perso* joueur){
         if(joueur->nbpas == 0){ /*S'il a fini de se deplacer*/
             joueur->deplacement = 0;
         }
-    }else{ /*S'il bouge pas*/
+    }else if(joueur->vie > 0){ /*S'il bouge pas*/
         pos.x= joueur->pos.x*TILE_SIZE+TILE_SIZE;
         pos.y= joueur ->pos.y*TILE_SIZE+TILE_SIZE;
         switch(joueur->direction){
