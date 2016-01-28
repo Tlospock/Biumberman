@@ -124,7 +124,7 @@ void poseBombe(Square** carte, Perso* joueur, SDL_Window* window, SDL_Surface* s
     if(carte[joueur->pos.x][joueur->pos.y].bombe.radius==0){
     /*Si le joueur peut bien poser une bombe*/
     
-        if(joueur->nbBombeTot - joueur->nbBombePos > 0){
+        if(joueur->nbBombeTot - joueur->nbBombePos > 0 && joueur->vie > 0){
             joueur->nbBombePos++;
             carte[joueur->pos.x][joueur->pos.y].bombe.decompte = SDL_GetTicks();
             carte[joueur->pos.x][joueur->pos.y].bombe.radius = joueur->radius;  /*Définition du raadius de la bombe*/
@@ -197,7 +197,7 @@ void check_bomb(Square** carte, Perso* tab_joueur)
     {
         for(j=0; j<hauteur_map; ++j)
         {
-            if(carte[i][j].bombe.radius !=0 && SDL_GetTicks()-carte[i][j].bombe.decompte>=2000)
+            if(carte[i][j].bombe.radius !=0 && SDL_GetTicks()-carte[i][j].bombe.decompte>=COMPTE_A_REBOURS)
             {
                 printf("Time start decompte %d,  Decompte à l'explosion %d\n", carte[i][j].bombe.decompte, SDL_GetTicks());
                 carte[i][j].bombe.decompte = 0;
@@ -208,7 +208,6 @@ void check_bomb(Square** carte, Perso* tab_joueur)
 }
 
 void exploser(Square** carte, int posBombeX, int posBombeY, Perso* tab_joueur){
-    /*h : horizontalement / v : verticalement*/
     int i=0, j=1;
 
     while(i<4)
@@ -222,7 +221,7 @@ void exploser(Square** carte, int posBombeX, int posBombeY, Perso* tab_joueur){
                         j=carte[posBombeX][posBombeY].bombe.radius+1;
                     else
                     {
-                        if(carte[posBombeX][posBombeY-j].bombe.radius!=0 && carte[posBombeX][posBombeY-j].bombe.decompte==0)
+                        if(carte[posBombeX][posBombeY-j].bombe.radius!=0 && carte[posBombeX][posBombeY-j].bombe.decompte!=0)
                             exploser(carte, posBombeX, posBombeY-j, tab_joueur);
                         else
                         {
