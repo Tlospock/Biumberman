@@ -4,6 +4,6 @@
 
 #include "perso.h"
 
-
+int prochaineCase(Square** carte, Position actuelle);
 
 #endif // _IA_H
