@@ -17,11 +17,13 @@
 
 
 int jeu(){
-    int i;
+    int i, j;
     hauteur_map = 15;
     longueur_map = 16;
     /*Initialisation de la SDL*/
      short int success;
+
+     Position actuelles;
 
     /*main loop flag*/
     short int quit = 0;
@@ -45,7 +47,7 @@ int jeu(){
             SDL_FillRect(screenSurface, NULL, SDL_MapRGB((screenSurface)->format, 0xFF, 0xAA, 0xAA));
             int choixTaille = inputTailleMap(window, screenSurface);
             if(choixTaille>0){
-                
+
                 /*init petite carte*/
                 if(choixTaille==1){
                     hauteur_map = 15;
@@ -57,7 +59,7 @@ int jeu(){
                     initierSDL(&window, &screenSurface);
                 }
                 SDL_FillRect(screenSurface, NULL, SDL_MapRGB((screenSurface)->format, 0xFF, 0xAA, 0xAA));
-                
+
                 /*Déclaration / allocation de la carte de jeu*/
                 Square **carte = (Square**)malloc(longueur_map*sizeof(Square*));
                 for(i=0; i<longueur_map; i++){
@@ -71,6 +73,7 @@ int jeu(){
                 /*Fin Initialisation*/
                 /*Boucle de Jeu*/
                 /*Initialisation de l'écran de jeu*/
+
                 while(!quit){
                 SDL_PollEvent(&e);
                     /*User requests quit*/
@@ -131,18 +134,36 @@ int jeu(){
                                             tab_joueur[1].deplacement = deplacer(carte, &tab_joueur[1]);
                                         }
                                         break;
+                                        case SDL_SCANCODE_RETURN:
+                                            poseBombe(carte, &tab_joueur[0], window, screenSurface);
+                                            /*for(i=0; i<hauteur_map; ++i)
+                                                {
+                                                    for(j=0; j<longueur_map; ++j)
+                                                        printf("%d", carte[j][i].idJoueur);
+
+                                                    printf("\n");
+                                                }
+                                                printf("\n");*/
+                                            break;
                                         case SDL_SCANCODE_SPACE:
-                                            poseBombe(carte, tab_joueur, 0, window, screenSurface);
+                                            poseBombe(carte, &tab_joueur[1], window, screenSurface);
+                                            break;
+                                        case SDL_SCANCODE_BACKSPACE:
+                                            actuelles = tab_joueur[0].pos;
+                                            printf("Backsapce used\n");
+                                            prochaineCase(carte, actuelles);
                                             break;
                                 default:
                                     break;
                             }
                             break;
                     }
+
+                    check_bomb(carte, tab_joueur);
                     refresh_map(window, screenSurface, carte);
-                    
                     for(i=0; i<nbPerso; i++){
                         refresh_perso(screenSurface, &tab_joueur[i]);
+
                     }
                     SDL_UpdateWindowSurface(window);
             }
