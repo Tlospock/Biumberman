@@ -23,6 +23,8 @@ int jeu(){
     /*Initialisation de la SDL*/
      short int success;
 
+     Position actuelles;
+
     /*main loop flag*/
     short int quit = 0;
 
@@ -45,7 +47,7 @@ int jeu(){
             SDL_FillRect(screenSurface, NULL, SDL_MapRGB((screenSurface)->format, 0xFF, 0xAA, 0xAA));
             int choixTaille = inputTailleMap(window, screenSurface);
             if(choixTaille>0){
-                
+
                 /*init petite carte*/
                 if(choixTaille==1){
                     hauteur_map = 15;
@@ -57,7 +59,7 @@ int jeu(){
                     initierSDL(&window, &screenSurface);
                 }
                 SDL_FillRect(screenSurface, NULL, SDL_MapRGB((screenSurface)->format, 0xFF, 0xAA, 0xAA));
-                
+
                 /*Déclaration / allocation de la carte de jeu*/
                 Square **carte = (Square**)malloc(longueur_map*sizeof(Square*));
                 for(i=0; i<longueur_map; i++){
@@ -170,7 +172,6 @@ char action2 = 0;*/
                             }
                             break;
                     }
-                    
                     check_bomb(carte, tab_joueur);
                     refresh_map(window, screenSurface, carte);
                     for(i=0; i<nbPerso; i++){

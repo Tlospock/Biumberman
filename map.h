@@ -17,9 +17,12 @@
 
 int hauteur_map;/* Multiple de 3 */
 int longueur_map;/* Multiple de 2 */
+
 #define TILE_SIZE 40
 #define NB_FRAME_ANIMATION 3
 #define NB_PERSONNAGE_MAX 4
+
+#define COMPTE_A_REBOURS 2000
 
 /*Définition des directions*/
 #define BAS 0

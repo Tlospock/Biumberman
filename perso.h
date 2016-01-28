@@ -25,4 +25,5 @@ void poseBombe(Square** carte, Perso* joueur, SDL_Window* window, SDL_Surface* s
 void mourir(Square** carte, Perso* joueur);
 
 void exploser(Square** carte, int posBombeX, int posBombeY, Perso* tab_joueur);
+
 #endif /* _PERSO_H*/
