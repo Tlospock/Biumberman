@@ -22,10 +22,12 @@ void init_map(Square** carte, int longueur, int hauteur)
 
             carte[i][j].bombe.decompte =-1;
             carte[i][j].bombe.radius = 0;
+            carte[i][j].bombe.proprio = -1;
+            carte[i][j].bombe.aExplose = -1;
 
             carte[i][j].bonus =0;
 
-            carte[i][j].idJoueur =0;
+            carte[i][j].idJoueur =-1;
             carte[i][j].danger=0;
 
         }

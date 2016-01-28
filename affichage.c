@@ -37,7 +37,6 @@ void refresh_map(SDL_Window* window, SDL_Surface* screenSurface, Square** carte)
     SDL_Surface *tile3 = SDL_LoadBMP("Img/3.bmp");
     SDL_Surface *hard = SDL_LoadBMP("Img/hard.bmp");
     SDL_Surface *airGround = SDL_LoadBMP("Img/air.bmp");
-    SDL_Surface *bomb1 = SDL_LoadBMP("Img/bomb1.bmp");
 
     SDL_Rect posTile;
     posTile.x = 0;
@@ -74,10 +73,10 @@ void refresh_map(SDL_Window* window, SDL_Surface* screenSurface, Square** carte)
                 }
                 if(carte[i-1][j-1].bombe.radius>0)
                 {
-                    SDL_BlitSurface(bomb1, NULL, screenSurface, &posTile);
+                    /*SDL_BlitSurface(bomb1, NULL, screenSurface, &posTile);*/
+                    animbombe(screenSurface, &(carte[i-1][j-1].bombe), posTile);
                 }
             }
-
         }
     }
     SDL_FreeSurface(tile1);
@@ -85,7 +84,6 @@ void refresh_map(SDL_Window* window, SDL_Surface* screenSurface, Square** carte)
     SDL_FreeSurface(tile3);
     SDL_FreeSurface(hard);
     SDL_FreeSurface(airGround);
-    SDL_FreeSurface(bomb1);
 }
 
 
@@ -358,11 +356,12 @@ void refresh_perso(SDL_Surface* screenSurface, Perso* joueur){
                 SDL_BlitSurface(joueur->sprite, &joueur->spriteClip[((joueur->nbpas/LIMITFRAME)%2)+10], screenSurface, &pos);
                 break;
         }
-        joueur->nbpas--;
-        if(joueur->nbpas == 0){ /*S'il a fini de se deplacer*/
+        joueur->nbpas-=1;
+        if(joueur->nbpas < 0){ /*S'il a fini de se deplacer*/
             joueur->deplacement = 0;
+            joueur->nbpas =0;
         }
-    }else if(joueur->vie > 0){ /*S'il bouge pas*/
+    }else if(joueur->vie >0){ /*S'il bouge pas*/
         pos.x= joueur->pos.x*TILE_SIZE+TILE_SIZE;
         pos.y= joueur ->pos.y*TILE_SIZE+TILE_SIZE;
         switch(joueur->direction){
@@ -381,3 +380,52 @@ void refresh_perso(SDL_Surface* screenSurface, Perso* joueur){
         }
     }
 }
+
+
+void animbombe(SDL_Surface* screenSurface, Bombe *bombe, SDL_Rect pos){
+    int i;
+    SDL_Surface* sprite = NULL;
+    SDL_Rect spriteClip[2];
+    
+    sprite = SDL_LoadBMP("Img/bombe_explode.bmp");
+    if(sprite == NULL){
+        printf("\nPas pu load sprite bombe : %s", SDL_GetError());
+        exit(EXIT_FAILURE);
+    }
+    
+    for(i=0; i<2; i++){
+        spriteClip[i].x = i*TILE_SIZE;
+        spriteClip[i].y = 0;
+        spriteClip[i].w = TILE_SIZE;
+        spriteClip[i].h = TILE_SIZE;
+    }
+    if(bombe->decompte > 0 ) {
+        SDL_BlitSurface(sprite, &(spriteClip[((2000-(SDL_GetTicks()-bombe->decompte))/500) %2]), screenSurface, &pos);
+    }else{
+        bombe->aExplose = SDL_GetTicks();
+    }
+}
+
+/*void animexplosion(SDL_Surface* screenSurface, Bombe *bombe, SDL_Rect pos){
+
+    if(bombe->aExplose>0){
+        SDL_BlitSurface(sprite, &(spriteClip[((500-((SDL_GetTicks()-bombe->aExplose))/500) %6)+2]), screenSurface, &pos);
+    }
+}*/
+/*
+void initSpritesBombe(SDL_Surface* screenSurface, SpriteBombe* spriteBomb){
+    int i;
+    spriteBomb->sprite = NULL;
+    spriteBomb->sprite = SDL_LoadBMP("Img/bombe_explode.bmp");
+    SDL_SetColorKey(spriteBomb->sprite, 1, SDL_MapRGB(spriteBomb->sprite->format, 0, 255, 0));
+    if(spriteBomb->sprite == NULL){
+        printf("\nPas pu load sprite bombe : %s", SDL_GetError());
+        exit(EXIT_FAILURE);
+    }
+    for(i=0; i<8; i++){
+        spriteBomb->spriteClip[i].x = i*TILE_SIZE;
+        spriteBomb->spriteClip[i].y = 0;
+        spriteBomb->spriteClip[i].w = TILE_SIZE;
+        spriteBomb->spriteClip[i].h = TILE_SIZE;
+    }
+}*/

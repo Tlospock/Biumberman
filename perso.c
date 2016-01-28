@@ -1,7 +1,6 @@
 #include "map.h"
 #include "perso.h"
 
-
 void init_perso(Square **carte, Perso* tab_perso, int nb_perso){
     int i,j;
     for(i=0; i<nb_perso; i++)
@@ -69,7 +68,9 @@ int deplacer(Square** carte, Perso* joueur){
                     break;
                 if(carte[joueur->pos.x][joueur->pos.y+1].bloc.type!=0 || carte[joueur->pos.x][joueur->pos.y+1].bombe.radius!=0)
                     break;
+                carte[joueur->pos.x][joueur->pos.y].idJoueur = -1;
                 joueur->pos.y++;
+                carte[joueur->pos.x][joueur->pos.y].idJoueur = joueur->id;
                 joueur->nbpas = 39;
                 return 1;
                 break;
@@ -78,7 +79,9 @@ int deplacer(Square** carte, Perso* joueur){
                     break;
                 if(carte[joueur->pos.x][joueur->pos.y-1].bloc.type!=0 || carte[joueur->pos.x][joueur->pos.y-1].bombe.radius!=0)
                     break;
+                carte[joueur->pos.x][joueur->pos.y].idJoueur = -1;
                 joueur->pos.y--;
+                carte[joueur->pos.x][joueur->pos.y].idJoueur = joueur->id;
                 joueur->nbpas = 39;
                 return 1;
                 break;
@@ -87,7 +90,9 @@ int deplacer(Square** carte, Perso* joueur){
                     break;
                 if(carte[joueur->pos.x-1][joueur->pos.y].bloc.type!=0 || carte[joueur->pos.x-1][joueur->pos.y].bombe.radius!=0)
                     break;
+                carte[joueur->pos.x][joueur->pos.y].idJoueur = -1;
                 joueur->pos.x--;
+                carte[joueur->pos.x][joueur->pos.y].idJoueur = joueur->id;
                 joueur->nbpas = 39;
                 return 1;
                 break;
@@ -96,7 +101,9 @@ int deplacer(Square** carte, Perso* joueur){
                     break;
                 if(carte[joueur->pos.x+1][joueur->pos.y].bloc.type!=0 || carte[joueur->pos.x+1][joueur->pos.y].bombe.radius!=0)
                     break;
+                carte[joueur->pos.x][joueur->pos.y].idJoueur = -1;
                 joueur->pos.x++;
+                carte[joueur->pos.x][joueur->pos.y].idJoueur = joueur->id;
                 joueur->nbpas = 39;
                 return 1;
                 break;
@@ -110,60 +117,60 @@ int deplacer(Square** carte, Perso* joueur){
     }
 }
 
-void poseBombe(Square** carte, Perso* tab_perso, int idJoueur, SDL_Window* window, SDL_Surface* screenSurface){
+void poseBombe(Square** carte, Perso* joueur, SDL_Window* window, SDL_Surface* screenSurface){
 
     int i=0, j=1;
-
-
     /*Si la case est bien vide*/
-    if(carte[tab_perso[idJoueur].pos.x][tab_perso[idJoueur].pos.y].bombe.radius==0){
+    if(carte[joueur->pos.x][joueur->pos.y].bombe.radius==0){
     /*Si le joueur peut bien poser une bombe*/
-        if(tab_perso[idJoueur].nbBombeTot - tab_perso[idJoueur].nbBombePos > 0){
-            tab_perso[idJoueur].nbBombePos++;
-            carte[tab_perso[idJoueur].pos.x][tab_perso[idJoueur].pos.y].bombe.decompte = SDL_GetTicks();
-            carte[tab_perso[idJoueur].pos.x][tab_perso[idJoueur].pos.y].bombe.radius = tab_perso[idJoueur].radius;
-
+    
+        if(joueur->nbBombeTot - joueur->nbBombePos > 0){
+            joueur->nbBombePos++;
+            carte[joueur->pos.x][joueur->pos.y].bombe.decompte = SDL_GetTicks();
+            carte[joueur->pos.x][joueur->pos.y].bombe.radius = joueur->radius;  /*Définition du raadius de la bombe*/
+            carte[joueur->pos.x][joueur->pos.y].bombe.proprio = joueur->id-1;                   /*Propriétaire de la bombe*/
+            carte[joueur->pos.x][joueur->pos.y].danger=1;
 
             /*On met à jour le danger dans les cases concerné par le radius*/
-            int posX = tab_perso[idJoueur].pos.x;
-            int posY = tab_perso[idJoueur].pos.y;
+            int posX = joueur->pos.x;
+            int posY = joueur->pos.y;
             while(i<4)
             {
-                while(j<tab_perso[idJoueur].radius)
+
+                while(j<joueur->radius+1)
                 {
                     switch(i)
                     {
-                        case 0:
-                            if(posY >0 && carte[posX][posY-j].bloc.type != 0)
-                                j=tab_perso[idJoueur].radius;
+                        case 0:                                                                     /*On regarde vers le haut*/
+                            if(posY-j <0 || carte[posX][posY-j].bloc.type != 0)
+                                j=joueur->radius;
                             else
                                 carte[posX][posY-j].danger=1;
-
                             break;
                         case 1:
-                            if(posY <hauteur_map-1 && carte[posX][posY+j].bloc.type != 0)
-                                j=tab_perso[idJoueur].radius;
+                            if(posY+j >hauteur_map-1 || carte[posX][posY+j].bloc.type != 0)
+                                j=joueur->radius;
                             else
                                 carte[posX][posY-j].danger=1;
                             break;
                         case 2:
-                            if(posX >0 && carte[posX-j][posY].bloc.type != 0)
-                                j=tab_perso[idJoueur].radius;
+                            if(posX-j <0 || carte[posX-j][posY].bloc.type != 0)
+                                j=joueur->radius;
                             else
                                 carte[posX][posY-j].danger=1;
                             break;
                         default:
-                            if(posX <longueur_map-1 && carte[posX+j][posY].bloc.type != 0)
-                                j=tab_perso[idJoueur].radius;
+                            if(posX+j <longueur_map-1 || carte[posX+j][posY].bloc.type != 0)
+                                j=joueur->radius;
                             else
                                 carte[posX][posY-j].danger=1;
                             break;
                     }
+                    ++j;
                 }
                 j=1;
                 ++i;
             }
-
             /*Animation de pose de bombe*/
         }else{
         /*PEUT PAS POSER LA BOMBEEEEEE!!!!!!!*/
@@ -171,64 +178,160 @@ void poseBombe(Square** carte, Perso* tab_perso, int idJoueur, SDL_Window* windo
     }
 }
 
-void mourir(Square** carte, int idJoueur)
-{
 
+void mourir(Square** carte, Perso* joueur)
+{
+    joueur->vie--;
+    printf("\nblblblblblb\n");
+    if(!joueur->vie){     
+        printf("\n%d",joueur->id);
+        carte[joueur->pos.x][joueur->pos.y].idJoueur=-1;
+    }
 }
 
-void exploser(Square** carte, int posBombeX, int posBombeY){
-/*h : horizontalement / v : verticalement*/
-    int cpt=0, h=0, v=0;
-    while(h<=carte[posBombeX][posBombeY].bombe.radius){
-        while(cpt < 4 && v!=0)
+void check_bomb(Square** carte, Perso* tab_joueur)
+{
+    int i, j;
+
+    for(i=0; i<longueur_map; ++i)
+    {
+        for(j=0; j<hauteur_map; ++j)
         {
-            if(carte[posBombeX+v][posBombeY+h].bombe.radius!=0 && carte[posBombeX+v][posBombeY+h].bombe.decompte==0)
-                exploser(carte, posBombeX+h, posBombeY+v);
-            else
+            if(carte[i][j].bombe.radius !=0 && SDL_GetTicks()-carte[i][j].bombe.decompte>=2000)
             {
-                if(carte[posBombeX+v][posBombeY+h].bloc.type>0)
-                    detruire_bloc(carte, posBombeX+v, posBombeY+h);
-                else if(carte[posBombeX+v][posBombeY+h].idJoueur!=0)
-                    mourir(carte, carte[posBombeX+v][posBombeY+h].idJoueur);
+                printf("Time start decompte %d,  Decompte à l'explosion %d\n", carte[i][j].bombe.decompte, SDL_GetTicks());
+                carte[i][j].bombe.decompte = 0;
+                exploser(carte, i, j, tab_joueur);
             }
-
-            /*Utiliser ce switch pour l'affichage des différents sprites d'explosion*/
-
-            switch(cpt)
-            {
-                case 0:
-                    h=-abs(h);
-                    ++v;
-                    break;
-                case 1:
-                    v=-abs(v);
-                    break;
-                case 2:
-                    h=abs(h);
-                    break;
-                case 3:
-                    v=abs(v);
-                    break;
-                default:
-                    printf("Erreur! Depassement\n\n\b");
-                    break;
-            }
-            cpt++;
         }
+    }
+}
+
+void exploser(Square** carte, int posBombeX, int posBombeY, Perso* tab_joueur){
+    /*h : horizontalement / v : verticalement*/
+    int i=0, j=1;
+
+    while(i<4)
+    {
+        while(j<carte[posBombeX][posBombeY].bombe.radius+1)
+        {
+            switch(i)
+            {
+                case HAUT:
+                    if(posBombeY-j <0 || carte[posBombeX][posBombeY-j].bloc.type < 0) /*si bloc indestructible ou outmap*/
+                        j=carte[posBombeX][posBombeY].bombe.radius+1;
+                    else
+                    {
+                        if(carte[posBombeX][posBombeY-j].bombe.radius!=0 && carte[posBombeX][posBombeY-j].bombe.decompte==0)
+                            exploser(carte, posBombeX, posBombeY-j, tab_joueur);
+                        else
+                        {
+                            if(carte[posBombeX][posBombeY-j].bloc.type>0)
+                            {
+                                detruire_bloc(carte, posBombeX, posBombeY-j);
+                                j=carte[posBombeX][posBombeY].bombe.radius+1;
+                            }
+                            else if(carte[posBombeX][posBombeY-j].idJoueur>0)
+                            {
+                                    printf("HAUT \n");
+                                    mourir(carte, &tab_joueur[carte[posBombeX][posBombeY-j].idJoueur-1]);
+                            }
+                            carte[posBombeX][posBombeY-j].danger=0;
+                        }
+                        
+                    }
+                    break;
+                case BAS:
+                    if(posBombeY+j >hauteur_map-1 || carte[posBombeX][posBombeY+j].bloc.type < 0)
+                        j=carte[posBombeX][posBombeY].bombe.radius+1;
+                    else
+                    {
+                        if(carte[posBombeX][posBombeY+j].bombe.radius!=0 && carte[posBombeX][posBombeY+j].bombe.decompte==0)
+                            exploser(carte, posBombeX, posBombeY+j, tab_joueur);
+                        else
+                        {
+                            if(carte[posBombeX][posBombeY+j].bloc.type>0)
+                            {
+                                detruire_bloc(carte, posBombeX, posBombeY+j);
+                                j=carte[posBombeX][posBombeY].bombe.radius+1;
+                            }
+                            else if(carte[posBombeX][posBombeY+j].idJoueur>0)
+                             {
+                                    printf("BAS\n");
+                                    mourir(carte, &tab_joueur[carte[posBombeX][posBombeY+j].idJoueur-1]);
+                            }
+                            carte[posBombeX][posBombeY+j].danger=0;
+                        }
+                        
+                    }
+                    break;
+                case GAUCHE:
+                    if(posBombeX-j <0 || carte[posBombeX-j][posBombeY].bloc.type < 0)
+                        j=carte[posBombeX][posBombeY].bombe.radius+1;
+                    else
+                    {
+                        if(carte[posBombeX-j][posBombeY].bombe.radius!=0 && carte[posBombeX-j][posBombeY].bombe.decompte==0)
+                        {
+                            exploser(carte, posBombeX, posBombeY-j, tab_joueur);
+                            j=carte[posBombeX][posBombeY].bombe.radius+1;
+                        }
+                        else
+                        {
+                            if(carte[posBombeX-j][posBombeY].bloc.type>0)
+                                detruire_bloc(carte, posBombeX-j, posBombeY);
+                            else if(carte[posBombeX-j][posBombeY].idJoueur>0)
+                            {
+                                    printf("GAUCHE\n");
+                                    mourir(carte, &tab_joueur[carte[posBombeX-j][posBombeY].idJoueur-1]);
+                            }
+                            carte[posBombeX-j][posBombeY].danger=0;
+                        }
+                        
+                    }
+                    break;
+                case DROITE:
+                    if(posBombeX+j >longueur_map-1 || carte[posBombeX+j][posBombeY].bloc.type < 0)
+                        j=carte[posBombeX][posBombeY].bombe.radius+1;
+                    else
+                    {
+                        if(carte[posBombeX+j][posBombeY].bombe.radius!=0 && carte[posBombeX+j][posBombeY].bombe.decompte==0)
+                            exploser(carte, posBombeX+j, posBombeY, tab_joueur);
+                        else
+                        {
+                            if(carte[posBombeX+j][posBombeY].bloc.type>0)
+                            {
+                                detruire_bloc(carte, posBombeX+j, posBombeY);
+                                j=carte[posBombeX][posBombeY].bombe.radius+1;
+                            }
+                            else if(carte[posBombeX][posBombeY+j].idJoueur>0)
+                            {
+                                    printf("DROITE \n");
+                                    mourir(carte, &tab_joueur[carte[posBombeX+j][posBombeY].idJoueur-1]);
+                            }carte[posBombeX+j][posBombeY].danger=0;
+                        }
+                    }
+                    break;
+            }
+            ++j;
+        }
+        j=1;
+        ++i;
+    }
 
         /*Ne pas oublier d'afficher l'origine de l'explosion*/
 
-        if(v==0)
-        {
-            if(carte[posBombeX+v][posBombeY+h].bloc.type>0)
-                    detruire_bloc(carte, posBombeX+v, posBombeY+h);
-            else if(carte[posBombeX+v][posBombeY+h].idJoueur!=0)
-                    mourir(carte, carte[posBombeX+v][posBombeY+h].idJoueur);
-        }
+    if(carte[posBombeX][posBombeY].bloc.type>0)
+        detruire_bloc(carte, posBombeX, posBombeY);
+    else if(carte[posBombeX][posBombeY].idJoueur>0)
+        mourir(carte, &tab_joueur[carte[posBombeX][posBombeY].idJoueur-1]);
+    carte[posBombeX][posBombeY].danger=0;
+    /*Mise à jour des infos de la carte liées à la bombe*/
+    carte[posBombeX][posBombeY].bombe.radius = 0;
+    carte[posBombeX][posBombeY].bombe.decompte = -1;
+    
+    /*Mise à jour des infos du perso liées à la bombe*/
+    tab_joueur[carte[posBombeX][posBombeY].bombe.proprio].nbBombePos--;
+    carte[posBombeX][posBombeY].bombe.proprio=-1;
 
-        cpt=0;
-        ++h;
-        ++v;
-    }
-    /*refresh la map*/
 }
+    /*refresh la map*/

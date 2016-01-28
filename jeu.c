@@ -17,7 +17,7 @@
 
 
 int jeu(){
-    int i;
+    int i, j;
     hauteur_map = 15;
     longueur_map = 16;
     /*Initialisation de la SDL*/
@@ -66,11 +66,28 @@ int jeu(){
                 /*Déclaration/allocation du tableau de joueurs*/
                 Perso* tab_joueur = (Perso*)malloc(nbPerso*sizeof(Perso));
 
+                /*Structure qui contient les sprites de la bombe, utile pour l'animation
+                SpriteBombe *spritebomb=NULL;*/
+                
                 init_map(carte, longueur_map, hauteur_map);
                 init_perso(carte, tab_joueur, nbPerso);
+      /*          initSpritesBombe(screenSurface, spritebomb);*/
                 /*Fin Initialisation*/
                 /*Boucle de Jeu*/
                 /*Initialisation de l'écran de jeu*/
+/*Pour que les joueurs puissent appuyer sur les touches en meme temps, sans se bloquer entre eux, 
+ * il faut un booleen par key, le mettre a 1 dans le switch du pollevent, puis après le switch gerer les actions */
+/*char down1 = 0;
+char up1 = 0;
+char left = 0;
+char right = 0;
+char action1 = 0;
+char down2 = 0;
+char up2 = 0;
+char left2 = 0;
+char right2 = 0;
+char action2 = 0;*/
+
                 while(!quit){
                 SDL_PollEvent(&e);
                     /*User requests quit*/
@@ -106,6 +123,18 @@ int jeu(){
                                         tab_joueur[0].deplacement = deplacer(carte, &tab_joueur[0]);
                                     }
                                     break;
+                                case SDL_SCANCODE_RETURN:
+                                    if(tab_joueur[0].vie>0){
+                                        poseBombe(carte, &tab_joueur[0], window, screenSurface);
+                                    }
+                                   /*         for(i=0; i<hauteur_map; ++i)
+                                                {
+                                                    for(j=0; j<longueur_map; ++j)
+                                                        printf("%d", carte[j][i].idJoueur);
+                                                
+                                                    printf("\n");
+                                                }*/
+                                    break;
                                     /*JOUEUR 2 A LES ZQSD*/
                                     case SDL_SCANCODE_S :
                                         if(nbJoueurs > 1 && tab_joueur[1].nbpas==0){
@@ -132,17 +161,21 @@ int jeu(){
                                         }
                                         break;
                                         case SDL_SCANCODE_SPACE:
-                                            poseBombe(carte, tab_joueur, 0, window, screenSurface);
+                                            if(tab_joueur[1].vie>0){
+                                            poseBombe(carte, &tab_joueur[1], window, screenSurface);
+                                            }
                                             break;
                                 default:
                                     break;
                             }
                             break;
                     }
-                    refresh_map(window, screenSurface, carte);
                     
+                    check_bomb(carte, tab_joueur);
+                    refresh_map(window, screenSurface, carte);
                     for(i=0; i<nbPerso; i++){
                         refresh_perso(screenSurface, &tab_joueur[i]);
+
                     }
                     SDL_UpdateWindowSurface(window);
             }

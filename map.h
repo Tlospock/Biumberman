@@ -54,7 +54,16 @@ typedef struct bloc{
 typedef struct bombe{
     int decompte;
     int radius;
+    int proprio;
+    int animation;
+    int aExplose;
 }Bombe;
+
+typedef struct caseIA{
+    Position posCase;
+    Position posCasePrec;
+    int hopNb;
+}CaseIA;
 
 typedef struct square{
     short int idJoueur;
@@ -99,6 +108,11 @@ typedef struct perso{
     SDL_Surface* sprite;
 
 }Perso;
+/*
+typedef struct sprite{
+    SDL_Surface* sprite;
+    SDL_Rect spriteClip[8];
+}SpriteBombe;*/
 
 void init_map(Square** carte, int longueur, int hauteur);
 
