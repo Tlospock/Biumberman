@@ -18,6 +18,7 @@
 
 int jeu(){
     int i, j;
+    int time_start = 0;
     hauteur_map = 15;
     longueur_map = 16;
     /*Initialisation de la SDL*/
@@ -67,19 +68,9 @@ int jeu(){
                 }
                 /*Déclaration/allocation du tableau de joueurs*/
                 Perso* tab_joueur = (Perso*)malloc(nbPerso*sizeof(Perso));
-
-                /*Structure qui contient les sprites de la bombe, utile pour l'animation
-                SpriteBombe *spritebomb=NULL;*/
                 
                 init_map(carte, longueur_map, hauteur_map);
-          /*      for(i=0; i<longueur_map-1; i++){
-                    for(j=0; i<hauteur_map-1; j++){
-                        printf("%d ", carte[i][j].bloc.type);
-                    }
-                    printf("\n");
-                }*/
                 init_perso(carte, tab_joueur, nbPerso);
-      /*          initSpritesBombe(screenSurface, spritebomb);*/
                 /*Fin Initialisation*/
                 /*Boucle de Jeu*/
                 /*Initialisation de l'écran de jeu*/
@@ -91,7 +82,8 @@ int jeu(){
             char right1 = 0; char right2 = 0;
             char action1 = 0; char action2 = 0;
 
-            while(!quit){
+            time_start = SDL_GetTicks();
+            while(!quit){    
                 SDL_PollEvent(&e);
                     switch(e.type){
                          /*User requests quit*/
@@ -222,6 +214,9 @@ int jeu(){
                     
                     check_bomb(carte, tab_joueur);
                     refresh_map(window, screenSurface, carte);
+                    if(timer(screenSurface, time_start)){
+                        /*fin du jeu*/
+                    }
                     for(i=0; i<nbPerso; i++){
                         refresh_perso(screenSurface, &tab_joueur[i]);
 

@@ -2,8 +2,10 @@
 #define _MAP_H
 #ifndef __LINUX__
     #include <SDL2/SDL.h>
+    #include <SDL2/SDL_ttf.h>
 #elif __WIN32__
     #include <SDL.h>
+    #include <SDL_ttf.h>
 #endif
 
 #include <stdio.h>
@@ -109,13 +111,7 @@ typedef struct perso{
     int nbpas;
     SDL_Rect spriteClip[12];
     SDL_Surface* sprite;
-
 }Perso;
-/*
-typedef struct sprite{
-    SDL_Surface* sprite;
-    SDL_Rect spriteClip[8];
-}SpriteBombe;*/
 
 void init_map(Square** carte, int longueur, int hauteur);
 

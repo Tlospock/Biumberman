@@ -17,11 +17,16 @@ int initierSDL(SDL_Window** window, SDL_Surface** screenSurface){
             /*Creation screensurface*/
             *screenSurface = SDL_GetWindowSurface( *window );
             if(*screenSurface == NULL){
-                printf("\nscreensurface, %s", SDL_GetError());
+                printf("screensurface, %s\n", SDL_GetError());
                 success = 0;
             }else{
                 /*Faire un fond ROSE*/
                 SDL_FillRect(*screenSurface, NULL, SDL_MapRGB((*screenSurface)->format, 0xFF, 0xAA, 0xAA));
+                /*initier TTF*/
+                if(TTF_Init()==-1){
+                    printf("Pas pu initialiser TTF ! SDL_ttf error : %s\n", TTF_GetError());
+                    success = 0;
+                }
             }
         }
     }
@@ -45,14 +50,14 @@ void refresh_map(SDL_Window* window, SDL_Surface* screenSurface, Square** carte)
     for(i=0; i<longueur_map+2; ++i)
     {
         posTile.x = i*40;
-
         for(j=0; j<hauteur_map+2; ++j)
         {
             posTile.y = j*40;
+            /*faire la bordure*/
             if(i==0 || j==0 || i == longueur_map+1 || j == hauteur_map+1){
                 SDL_BlitSurface(hard, NULL, screenSurface, &posTile);
             }
-            else
+            else /*les autres cases, celles jouables*/
             {
                 switch(carte[i-1][j-1].bloc.type)
                 {
@@ -392,7 +397,7 @@ void refresh_perso(SDL_Surface* screenSurface, Perso* joueur){
     }
 }
 
-
+/*animation de la bombe jusqu'à ce qu'elle explose*/
 void animbombe(SDL_Surface* screenSurface, Bombe *bombe, SDL_Rect pos){
     int i;
     SDL_Surface* sprite = NULL;
@@ -417,6 +422,7 @@ void animbombe(SDL_Surface* screenSurface, Bombe *bombe, SDL_Rect pos){
     SDL_FreeSurface(sprite);
 }
 
+/*animation du nuage créé par le souffle de l'explosion*/
 void animexplosion(SDL_Surface* screenSurface, Bombe *bombe, SDL_Rect pos, Square** carte){
     int i;
     SDL_Rect cpy_pos;
@@ -477,20 +483,68 @@ void animexplosion(SDL_Surface* screenSurface, Bombe *bombe, SDL_Rect pos, Squar
         }
     SDL_FreeSurface(sprite);
 }
-/*
-void initSpritesBombe(SDL_Surface* screenSurface, SpriteBombe* spriteBomb){
-    int i;
-    spriteBomb->sprite = NULL;
-    spriteBomb->sprite = SDL_LoadBMP("Img/bombe_explode.bmp");
-    SDL_SetColorKey(spriteBomb->sprite, 1, SDL_MapRGB(spriteBomb->sprite->format, 0, 255, 0));
-    if(spriteBomb->sprite == NULL){
-        printf("\nPas pu load sprite bombe : %s", SDL_GetError());
+
+/*affichage du timer, une fois tombé de 2:00 à 0:00, renvoie 1*/
+int timer(SDL_Surface* screenSurface, int start){
+    int fini = 0;
+    int temps = SDL_GetTicks();
+    int temps_sec = 0;
+    
+    SDL_Color textColor = {0, 0, 0};
+        
+    SDL_Rect postext;
+    postext.x = longueur_map*TILE_SIZE - 120;
+    postext.y = 0;
+    
+    /*img left timer*/
+    SDL_Rect posLT;
+    posLT.x = longueur_map*TILE_SIZE -120;
+    posLT.y = 0;
+    SDL_Surface* timer_L = NULL;
+    
+    /*img right timer*/
+    SDL_Rect posRT;
+    posRT.x = posLT.x+TILE_SIZE;
+    posLT.y = 0;
+    SDL_Surface* timer_R = NULL;
+    
+    timer_L = SDL_LoadBMP("Img/lefttimer.bmp");
+    timer_R = SDL_LoadBMP("Img/righttimer.bmp");
+    if(timer_L == NULL || timer_R == NULL){
+        printf("pas pu load img timer : %s", SDL_GetError());
+    }
+    
+    SDL_SetColorKey(timer_L, 1, SDL_MapRGB(timer_L->format, 0, 255, 0));
+    SDL_SetColorKey(timer_R, 1, SDL_MapRGB(timer_R->format, 0, 255, 0));
+    
+    TTF_Font *font = NULL;
+    font = TTF_OpenFont("CloisterBlack.ttf", 36);
+    if(font == NULL){
+        printf("Pas pu load la police d ecriture ! erreur : %s", TTF_GetError());
         exit(EXIT_FAILURE);
     }
-    for(i=0; i<8; i++){
-        spriteBomb->spriteClip[i].x = i*TILE_SIZE;
-        spriteBomb->spriteClip[i].y = 0;
-        spriteBomb->spriteClip[i].w = TILE_SIZE;
-        spriteBomb->spriteClip[i].h = TILE_SIZE;
+
+    char chaine[4];
+    SDL_Surface *textSurface = NULL;
+    temps_sec = (temps - start)/1000;
+    
+    if(temps_sec > -1 && temps_sec<120*1000){
+        sprintf(chaine, "%d", 120-temps_sec);
+        textSurface = TTF_RenderText_Solid(font, chaine, textColor);
+        if(textSurface == NULL){
+            printf("Pas pu load la textSurface ! Erreur : %s", TTF_GetError());
+            exit(EXIT_FAILURE);
+        }
+        SDL_BlitSurface(timer_L, NULL, screenSurface, &posLT);
+        SDL_BlitSurface(timer_R, NULL, screenSurface, &posRT);
+        SDL_BlitSurface(textSurface, NULL, screenSurface, &postext);
+    }else{
+        fini = 1;
     }
-}*/
+    
+    SDL_FreeSurface(timer_L);
+    SDL_FreeSurface(timer_R);
+    SDL_FreeSurface(textSurface);
+    
+    return fini;
+}
