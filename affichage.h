@@ -27,8 +27,8 @@ int inputNbJoueurs(SDL_Window* window, SDL_Surface* screenSurface, int nbPerso);
 int inputTailleMap(SDL_Window* window, SDL_Surface* screenSurface);
 
 void animbombe(SDL_Surface* screenSurface, Bombe* bombe, SDL_Rect pos);
-/*void animbombe(SDL_Surface* screenSurface, Bombe *bombe, SDL_Rect pos, SpriteBombe* sprB);*/
 
+void animexplosion(SDL_Surface* screenSurface, Bombe *bombe, SDL_Rect pos, Square** carte);
 /*void initSpritesBombe(SDL_Surface* screenSurface, SpriteBombe* spriteBomb);*/
 
 int test(Square** carte);

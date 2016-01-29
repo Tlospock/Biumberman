@@ -135,7 +135,6 @@ void poseBombe(Square** carte, Perso* joueur, SDL_Window* window, SDL_Surface* s
             int posY = joueur->pos.y;
             while(i<4)
             {
-
                 while(j<joueur->radius+1)
                 {
                     switch(i)
@@ -150,19 +149,19 @@ void poseBombe(Square** carte, Perso* joueur, SDL_Window* window, SDL_Surface* s
                             if(posY+j >hauteur_map-1 || carte[posX][posY+j].bloc.type != 0)
                                 j=joueur->radius;
                             else
-                                carte[posX][posY-j].danger=1;
+                                carte[posX][posY+j].danger=1;
                             break;
                         case 2:
                             if(posX-j <0 || carte[posX-j][posY].bloc.type != 0)
                                 j=joueur->radius;
                             else
-                                carte[posX][posY-j].danger=1;
+                                carte[posX-j][posY].danger=1;
                             break;
                         default:
-                            if(posX+j <longueur_map-1 || carte[posX+j][posY].bloc.type != 0)
+                            if(posX+j >longueur_map-1 || carte[posX+j][posY].bloc.type != 0)
                                 j=joueur->radius;
                             else
-                                carte[posX][posY-j].danger=1;
+                                carte[posX+j][posY].danger=1;
                             break;
                     }
                     ++j;
@@ -199,6 +198,7 @@ void check_bomb(Square** carte, Perso* tab_joueur)
             {
                 printf("Time start decompte %d,  Decompte à l'explosion %d\n", carte[i][j].bombe.decompte, SDL_GetTicks());
                 carte[i][j].bombe.decompte = 0;
+                carte[i][j].bombe.aExplose = SDL_GetTicks();
                 exploser(carte, i, j, tab_joueur);
             }
         }

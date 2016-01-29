@@ -49,8 +49,9 @@ void refresh_map(SDL_Window* window, SDL_Surface* screenSurface, Square** carte)
         for(j=0; j<hauteur_map+2; ++j)
         {
             posTile.y = j*40;
-            if(i==0 || j==0 || i == longueur_map+1 || j == hauteur_map+1)
+            if(i==0 || j==0 || i == longueur_map+1 || j == hauteur_map+1){
                 SDL_BlitSurface(hard, NULL, screenSurface, &posTile);
+            }
             else
             {
                 switch(carte[i-1][j-1].bloc.type)
@@ -73,10 +74,20 @@ void refresh_map(SDL_Window* window, SDL_Surface* screenSurface, Square** carte)
                 }
                 if(carte[i-1][j-1].bombe.radius>0)
                 {
-                    /*SDL_BlitSurface(bomb1, NULL, screenSurface, &posTile);*/
                     animbombe(screenSurface, &(carte[i-1][j-1].bombe), posTile);
                 }
             }
+        }
+    }
+    for(i=1; i<longueur_map+1; ++i)
+    {
+        posTile.x = i*40;
+        for(j=1; j<hauteur_map+1; ++j)
+        {
+            posTile.y = j*40;
+                if(carte[i-1][j-1].bombe.aExplose > 0){
+                    animexplosion(screenSurface, &(carte[i-1][j-1].bombe), posTile, carte);
+                }
         }
     }
     SDL_FreeSurface(tile1);
@@ -400,18 +411,72 @@ void animbombe(SDL_Surface* screenSurface, Bombe *bombe, SDL_Rect pos){
         spriteClip[i].h = TILE_SIZE;
     }
     if(bombe->decompte > 0 ) {
-        SDL_BlitSurface(sprite, &(spriteClip[((2000-(SDL_GetTicks()-bombe->decompte))/500) %2]), screenSurface, &pos);
-    }else{
-        bombe->aExplose = SDL_GetTicks();
+        SDL_SetColorKey(sprite, 1, SDL_MapRGB(sprite->format, 0, 255, 0));
+        SDL_BlitSurface(sprite, &(spriteClip[((COMPTE_A_REBOURS-(SDL_GetTicks()-bombe->decompte))/500) %2]), screenSurface, &pos);
     }
+    SDL_FreeSurface(sprite);
 }
 
-/*void animexplosion(SDL_Surface* screenSurface, Bombe *bombe, SDL_Rect pos){
-
+void animexplosion(SDL_Surface* screenSurface, Bombe *bombe, SDL_Rect pos, Square** carte){
+    int i;
+    SDL_Rect cpy_pos;
+    SDL_Surface* sprite = NULL;
+    SDL_Rect spriteClip[6];
+    
     if(bombe->aExplose>0){
-        SDL_BlitSurface(sprite, &(spriteClip[((500-((SDL_GetTicks()-bombe->aExplose))/500) %6)+2]), screenSurface, &pos);
-    }
-}*/
+        sprite = SDL_LoadBMP("Img/bombe_explode.bmp");
+        if(sprite == NULL){
+            printf("\nPas pu load sprite explosion bombe : %s", SDL_GetError());
+            exit(EXIT_FAILURE);
+        }
+        SDL_SetColorKey(sprite, 1, SDL_MapRGB(sprite->format, 0, 255, 0));
+        for(i=0; i<6; i++){
+            spriteClip[i].x = (i*TILE_SIZE)+80;
+            spriteClip[i].y = 0;
+            spriteClip[i].w = TILE_SIZE;
+            spriteClip[i].h = TILE_SIZE;
+        }
+            
+            if((SDL_GetTicks()-bombe->aExplose) <= 1200){ /*Si ce n'est pas la fin du tab de sprites d'explosion, on le parcourt*/
+                /*case de la bombe*/
+                cpy_pos.x = pos.x;
+                cpy_pos.y = pos.y;
+                SDL_BlitSurface(sprite, &spriteClip[(((SDL_GetTicks()-bombe->aExplose)/200) %6)], screenSurface, &pos);
+                /*CASES AUTOUR DE LEPICENTRE DE LA BOMBE*/
+                for(i=0; i<=bombe->radius; i++){
+                    /*cases vers le haut*/                 
+                    if((cpy_pos.y>TILE_SIZE) && carte[(cpy_pos.x/TILE_SIZE-1)][(cpy_pos.y/TILE_SIZE-1)-1].bloc.type != -1){ /*pas de nuage sur les blocs indestructibles*/
+                        cpy_pos.y-=TILE_SIZE;
+                        SDL_BlitSurface(sprite, &(spriteClip[(((SDL_GetTicks()-bombe->aExplose)/200) %6)]), screenSurface, &cpy_pos);
+                    }
+                    cpy_pos.x = pos.x;
+                    cpy_pos.y = pos.y;
+                    /*cases vers le bas*/
+                    if((cpy_pos.y<hauteur_map*TILE_SIZE) && carte[cpy_pos.x/TILE_SIZE-1][(cpy_pos.y/TILE_SIZE-1)+1].bloc.type != -1){
+                        cpy_pos.y+=TILE_SIZE;
+                        SDL_BlitSurface(sprite, &(spriteClip[(((SDL_GetTicks()-bombe->aExplose)/200) %6)]), screenSurface, &cpy_pos);
+                    }
+                    cpy_pos.x = pos.x;
+                    cpy_pos.y = pos.y;
+                    /*cases vers la gauche*/
+                    if((cpy_pos.x>TILE_SIZE) && carte[cpy_pos.x/TILE_SIZE-1-1][cpy_pos.y/TILE_SIZE-1].bloc.type != -1){ 
+                        cpy_pos.x-=TILE_SIZE;
+                        SDL_BlitSurface(sprite, &(spriteClip[(((SDL_GetTicks()-bombe->aExplose)/200) %6)]), screenSurface, &cpy_pos);
+                    }
+                    cpy_pos.x = pos.x;
+                    cpy_pos.y = pos.y;
+                    /*cases vers la droite*/
+                    if((cpy_pos.x < longueur_map*TILE_SIZE) && carte[cpy_pos.x/TILE_SIZE-1+1][(cpy_pos.y/TILE_SIZE-1)].bloc.type != -1){
+                        cpy_pos.x += TILE_SIZE;
+                        SDL_BlitSurface(sprite, &(spriteClip[(((SDL_GetTicks()-bombe->aExplose)/200) %6)]), screenSurface, &cpy_pos);
+                    }
+                }
+            }else{ /*Sinon c'est que le nuage est dissipé, on remet la case à -1*/
+                bombe->aExplose = -1;
+            }
+        }
+    SDL_FreeSurface(sprite);
+}
 /*
 void initSpritesBombe(SDL_Surface* screenSurface, SpriteBombe* spriteBomb){
     int i;
