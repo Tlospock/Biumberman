@@ -18,7 +18,10 @@
 
 int jeu(){
     int i, j;
+    
     int time_start = 0;
+    int playagain = 0;
+    
     hauteur_map = 15;
     longueur_map = 16;
     /*Initialisation de la SDL*/
@@ -210,12 +213,47 @@ int jeu(){
                     }
                     if(action2 && nbJoueurs > 1 && tab_joueur[1].vie>0){
                         poseBombe(carte, &tab_joueur[1], window, screenSurface);
+                    }                    
+                    /*
+                    if(nbPerso>1 && nbJoueurs==1){
+                        actuelle = tab_joueur[1].pos;
+                        if(tab_joueur[1].nbpas==0){
+                            if (prochaineCase(carte, actuelle, &tab_joueur[1], window, screenSurface)!= -1){
+                                tab_joueur[1].direction = prochaineCase(carte, actuelle, &tab_joueur[1], window, screenSurface);
+                                tab_joueur[1].deplacement = deplacer(carte, &tab_joueur[1]);
+                            }
+                        }
                     }
-                    
+                    if(nbPerso>2){
+                        actuelle = tab_joueur[2].pos;
+                        if(tab_joueur[2].nbpas==0){
+                            if (prochaineCase(carte, actuelle, &tab_joueur[2], window, screenSurface)!= -1){
+                                tab_joueur[2].direction = prochaineCase(carte, actuelle, &tab_joueur[2], window, screenSurface);
+                                tab_joueur[2].deplacement = deplacer(carte, &tab_joueur[2]);
+                            }
+                        }
+                    }
+                    if(nbPerso>3){
+                        actuelle = tab_joueur[3].pos;
+                        if(tab_joueur[3].nbpas==0){
+                            if (prochaineCase(carte, actuelle, &tab_joueur[3], window, screenSurface)!= -1){
+                                tab_joueur[3].direction = prochaineCase(carte, actuelle, &tab_joueur[3], window, screenSurface);
+                                tab_joueur[3].deplacement = deplacer(carte, &tab_joueur[3]);
+                            }
+                        }
+                    }*/
+
                     check_bomb(carte, tab_joueur);
                     refresh_map(window, screenSurface, carte);
                     if(timer(screenSurface, time_start)){
-                        /*fin du jeu*/
+                        /*Déterminer les gagnants*/
+                        for(i=0; i<nbJoueurs; i++){
+                            if(tab_joueur[i].vie>0){
+                                tab_joueur[i].gagnant = 1;
+                            }
+                        }
+                        /*afficher le menu de fin avec les joueurs et proposition de quitter / recommencer une partie*/
+                        playagain = finjeu(screenSurface, tab_joueur, nbJoueurs);
                     }
                     for(i=0; i<nbPerso; i++){
                         refresh_perso(screenSurface, &tab_joueur[i]);

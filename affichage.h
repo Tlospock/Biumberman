@@ -25,6 +25,7 @@ int inputTailleMap(SDL_Window* window, SDL_Surface* screenSurface);
 void animbombe(SDL_Surface* screenSurface, Bombe* bombe, SDL_Rect pos);
 void animexplosion(SDL_Surface* screenSurface, Bombe *bombe, SDL_Rect pos, Square** carte);
 int timer(SDL_Surface* screenSurface, int start);
+int finjeu(SDL_Surface* screenSurface, Perso* tab_joueurs, int nbjoueurs);
 
 int test(Square** carte);
 

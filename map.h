@@ -111,6 +111,8 @@ typedef struct perso{
     int nbpas;
     SDL_Rect spriteClip[12];
     SDL_Surface* sprite;
+    
+    short int gagnant;
 }Perso;
 
 void init_map(Square** carte, int longueur, int hauteur);

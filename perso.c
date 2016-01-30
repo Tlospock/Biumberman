@@ -47,7 +47,7 @@ void init_perso(Square **carte, Perso* tab_perso, int nb_perso){
         tab_perso[i].radius = 1;
         tab_perso[i].effetBonus = 0;
         tab_perso[i].poussee = 0;
-
+        tab_perso[i].gagnant = 0;
         for(j=0; j< 12; j++){
             tab_perso[i].spriteClip[j].x = j*TILE_SIZE;
             tab_perso[i].spriteClip[j].y = 0;

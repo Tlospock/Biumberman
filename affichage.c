@@ -484,7 +484,7 @@ void animexplosion(SDL_Surface* screenSurface, Bombe *bombe, SDL_Rect pos, Squar
     SDL_FreeSurface(sprite);
 }
 
-/*affichage du timer, une fois tombé de 2:00 à 0:00, renvoie 1*/
+/*affichage du timer, une fois tombé de 120sec à 0, renvoie 1*/
 int timer(SDL_Surface* screenSurface, int start){
     int fini = 0;
     int temps = SDL_GetTicks();
@@ -528,8 +528,8 @@ int timer(SDL_Surface* screenSurface, int start){
     SDL_Surface *textSurface = NULL;
     temps_sec = (temps - start)/1000;
     
-    if(temps_sec > -1 && temps_sec<120*1000){
-        sprintf(chaine, "%d", 120-temps_sec);
+    if(3-temps_sec > -1 && temps_sec<3*1000){
+        sprintf(chaine, "%d", 3-temps_sec);
         textSurface = TTF_RenderText_Solid(font, chaine, textColor);
         if(textSurface == NULL){
             printf("Pas pu load la textSurface ! Erreur : %s", TTF_GetError());
@@ -547,4 +547,75 @@ int timer(SDL_Surface* screenSurface, int start){
     SDL_FreeSurface(textSurface);
     
     return fini;
+}
+
+/*menu de fin de jeu :
+ * affiche le / les / aucun gagnant(s)
+ * recommencer une partie
+ * quitter*/
+int finjeu(SDL_Surface* screenSurface, Perso* tab_joueurs, int nbjoueurs){
+    char play_again = 0;
+    int i;
+    int cpt_gagnants=0;
+    
+    /*surface où afficher les scores, avec une jolie ptite bordure*/
+    SDL_Rect posCadre;
+    posCadre.w = 504;
+    posCadre.h = 304;
+    posCadre.x = (screenSurface->w/2)-(posCadre.w/2);
+    posCadre.y = (screenSurface->h/2)-(posCadre.h/2);
+    
+    SDL_Surface *cadre = SDL_CreateRGBSurface(0, posCadre.w, posCadre.h, 32, 0, 0, 0, 0);
+    SDL_FillRect(cadre, NULL, SDL_MapRGB(screenSurface->format, 0xFF, 0xAA, 0xAA));
+    // SDL_FillRect(cadre, &posCadre, SDL_MapRGB((screenSurface)->format, 39, 22, 8));
+    
+    SDL_Rect posEncadre;
+    posEncadre.w = 500;
+    posEncadre.h = 300;
+    posEncadre.x = (screenSurface->w/2)-(posEncadre.w/2);
+    posEncadre.y = (screenSurface->h/2)-(posEncadre.h/2);
+
+    SDL_Surface *encadre = SDL_CreateRGBSurface(0, posEncadre.w, posEncadre.h, 32, 0, 0, 0, 0);
+    SDL_FillRect(encadre, NULL, SDL_MapRGB(screenSurface->format, 0x00, 0xAA, 0xAA));
+     if(encadre == NULL) {
+        fprintf(stderr, "CreateRGBSurface failed: %s\n", SDL_GetError());
+        exit(1);
+    }
+    
+    SDL_Color textColor = {0, 0, 0};
+    SDL_Rect postext;
+    postext.x = posEncadre.x + 40;
+    postext.y = posEncadre.y + 40;
+    postext.h = 40;
+    postext.w = posEncadre.w;
+    
+    TTF_Font *font = NULL;
+    font = TTF_OpenFont("CloisterBlack.ttf", 36);
+    SDL_Surface *textSurface = NULL;
+    
+    char chaine[50];
+    for(i=0; i<nbjoueurs; i++){
+        if(tab_joueurs[i].gagnant==1){
+            sprintf(chaine, "Le joueur %d remporte la victoire !\n", i+1);
+            textSurface = TTF_RenderText_Solid(font, chaine, textColor);
+            if(textSurface == NULL){
+                printf("Pas pu load la textSurface ! Erreur : %s", TTF_GetError());
+                exit(EXIT_FAILURE);
+            }
+            
+            postext.y = posEncadre.y + 40 + i*(postext.h+20);
+            SDL_BlitSurface(cadre, NULL, screenSurface, &posCadre);
+            SDL_BlitSurface(encadre, NULL, screenSurface, &posEncadre);
+            SDL_BlitSurface(textSurface, NULL, screenSurface, &postext);
+            cpt_gagnants++;
+        }
+    }
+    if(cpt_gagnants==0){
+        sprintf(chaine, "Défaite totale !\n");
+    }
+    
+    SDL_FreeSurface(cadre);
+    SDL_FreeSurface(encadre);
+    SDL_FreeSurface(textSurface);
+    return play_again;
 }
