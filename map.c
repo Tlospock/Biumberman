@@ -89,26 +89,43 @@ void init_map(Square** carte, int longueur, int hauteur)
 		}
 	}
 
-
+    generationBonus(carte);
 }
 
 void generationBonus(Square** carte)
 {
     int x, y;
+    int i=1, j=0;
+    
+    int tab_nbBonus[11] = {N_FEU, N_GLACE, N_MINE, N_PRADIUS, N_MRADIUS, N_PVITESSE, N_MVITESSE, N_PBOMBE, N_MBOMBE, N_PVIE, N_POUSSEE};
+    
+    for(i= 1 ; i<12 ; i++){
+        j=0;
+        while(j<tab_nbBonus[i-1]) { 
+            x= rand() % (longueur_map);
+            y= rand() % (hauteur_map);
+            if(carte[x][y].bloc.type > 0 && carte[x][y].bonus == 0 ){
+                carte[x][y].bonus = i;
+                j++;
+            }
+        }
+    }
+    
+    /**
+    int x, y;
     int cpt = 1, i=0;
+    
     while(cpt<12)
     {
         x= rand() % (longueur_map);
         y= rand() % (hauteur_map);
-
+        
         if(carte[x][y].bloc.type >0 && carte[x][y].bonus == 0 )
         {
-            /*printf(" i: %d, Coord: %d, %d\n", i, x, y);*/
-
             switch(cpt)
             {
             case 1:
-                carte[x][y].bonus = cpt;
+                carte[x][y].bonus = FEU;
                 ++i;
                 if(i>=N_FEU)
                 {
@@ -117,7 +134,7 @@ void generationBonus(Square** carte)
                 }
                 break;
             case 2:
-                carte[x][y].bonus = cpt;
+                carte[x][y].bonus = GLACE;
                 ++i;
                 if(i>=N_GLACE)
                 {
@@ -126,7 +143,7 @@ void generationBonus(Square** carte)
                 }
                 break;
             case 3:
-                carte[x][y].bonus = cpt;
+                carte[x][y].bonus = MINE;
                 ++i;
                 if(i>=N_MINE)
                 {
@@ -135,7 +152,7 @@ void generationBonus(Square** carte)
                 }
                 break;
             case 4:
-                carte[x][y].bonus = cpt;
+                carte[x][y].bonus = PRADIUS;
                 ++i;
                 if(i>=N_PRADIUS)
                 {
@@ -144,7 +161,7 @@ void generationBonus(Square** carte)
                 }
                 break;
             case 5:
-                carte[x][y].bonus = cpt;
+                carte[x][y].bonus = MRADIUS;
                 ++i;
                 if(i>=N_MRADIUS)
                 {
@@ -153,7 +170,7 @@ void generationBonus(Square** carte)
                 }
                 break;
             case 6:
-                carte[x][y].bonus = cpt;
+                carte[x][y].bonus = PVITESSE;
                 ++i;
                 if(i>=N_PVITESSE)
                 {
@@ -162,7 +179,7 @@ void generationBonus(Square** carte)
                 }
                 break;
             case 7:
-                carte[x][y].bonus = cpt;
+                carte[x][y].bonus = MVITESSE;
                 ++i;
                 if(i>=N_MVITESSE)
                 {
@@ -171,7 +188,7 @@ void generationBonus(Square** carte)
                 }
                 break;
             case 8:
-                carte[x][y].bonus = cpt;
+                carte[x][y].bonus = PBOMBE;
                 ++i;
                 if(i>=N_PBOMBE)
                 {
@@ -180,7 +197,7 @@ void generationBonus(Square** carte)
                 }
                 break;
             case 9:
-                carte[x][y].bonus = cpt;
+                carte[x][y].bonus = MBOMBE;
                 ++i;
                 if(i>=N_MBOMBE)
                 {
@@ -189,7 +206,7 @@ void generationBonus(Square** carte)
                 }
                 break;
             case 10:
-                carte[x][y].bonus = cpt;
+                carte[x][y].bonus = PVIE;
                 ++i;
                 if(i>=N_PVIE)
                 {
@@ -198,7 +215,7 @@ void generationBonus(Square** carte)
                 }
                 break;
             case 11:
-                carte[x][y].bonus = cpt;
+                carte[x][y].bonus = POUSSEE;
                 ++i;
                 if(i>=N_POUSSEE)
                 {
@@ -211,60 +228,109 @@ void generationBonus(Square** carte)
             i++;
         }
     }
+     * */
 }
 
-
-
-void recuperationBonus(Square** carte, Position pos, Perso* tab_perso)
-{
-    if(carte[pos.x][pos.y].bonus != 0 && carte[pos.x][pos.y].idJoueur >0)
-    {
-        switch(carte[pos.x][pos.y].bonus)
-        {
-        case 1:
-            tab_perso[carte[pos.x][pos.y].idJoueur].effetBonus =1;
-            break;
-        case 2:
-            tab_perso[carte[pos.x][pos.y].idJoueur].effetBonus =2;
-            break;
-        case 3:
-            tab_perso[carte[pos.x][pos.y].idJoueur].effetBonus =3;
-            break;
-        case 4:
-            tab_perso[carte[pos.x][pos.y].idJoueur].radius++;
-            break;
-        case 5:
-            if(tab_perso[carte[pos.x][pos.y].idJoueur].radius >1)
-                tab_perso[carte[pos.x][pos.y].idJoueur].radius--;
-            break;
-        case 6:
-            tab_perso[carte[pos.x][pos.y].idJoueur].vitesse*=2;
-            break;
-        case 7:
-            tab_perso[carte[pos.x][pos.y].idJoueur].vitesse/=2;
-            break;
-        case 8:
-            tab_perso[carte[pos.x][pos.y].idJoueur].radius++;
-            break;
-        case 9:
-            if(tab_perso[carte[pos.x][pos.y].idJoueur].nbBombeTot >1)
-                tab_perso[carte[pos.x][pos.y].idJoueur].radius--;
-            break;
-        case 10:
-            tab_perso[carte[pos.x][pos.y].idJoueur].vie++;
-            break;
-        case 11:
-            tab_perso[carte[pos.x][pos.y].idJoueur].poussee=1;
-            break;
+void recuperationBonus(Square** carte, Perso* joueur){
+    if(carte[joueur->pos.x][joueur->pos.y].bonus != 0){
+        switch(carte[joueur->pos.x][joueur->pos.y].bonus){
+            case FEU:
+                joueur->effetBonus =1;
+                break;
+            case GLACE:
+                joueur->effetBonus =2;
+                break;
+            case MINE:
+                joueur->effetBonus =3;
+                break;
+            case PRADIUS:
+                joueur->radius++;
+                break;
+            case MRADIUS:
+                if(joueur->radius >1)
+                    joueur->radius--;
+                break;
+            case PVITESSE:
+                joueur->vitesse+=1;
+                break;
+            case MVITESSE:
+                joueur->vitesse-=1;
+                break;
+            case PBOMBE:
+                joueur->nbBombeTot++;
+                break;
+            case MBOMBE:
+                if(joueur->nbBombeTot >1)
+                    joueur->nbBombeTot--;
+                break;
+            case PVIE:
+                joueur->vie++;
+                break;
+            case POUSSEE:
+                joueur->poussee=1;
+                break;
         }
     }
-
-    carte[pos.x][pos.y].bonus = 0;
+    carte[joueur->pos.x][joueur->pos.y].bonus = 0;
 }
 
-void detruire_bloc(Square** carte, int posX, int posY)
-{
-    carte[posX][posY].bloc.type = 0;
-    /*Animation de destruction*/
-    /*Spawn du bonus*/
+void detruire_bloc(SDL_Surface* screenSurface, Square** carte, Position pos){
+    carte[pos.x][pos.y].bloc.type = 0;
+    
+}
+
+
+/************************************/
+/* y-1 square
+ * y bombe
+ * y +1 joueur*/
+
+void pousser(Square** carte, Position pos, Perso* joueur){
+    switch(joueur->direction){
+        case HAUT :
+            if(carte[pos.x][pos.y+1].idJoueur>0 && carte[pos.x][pos.y-1].bloc.type ==0){
+                carte[pos.x][pos.y-1].bombe.radius = carte[pos.x][pos.y].bombe.radius;
+                carte[pos.x][pos.y-1].bombe.decompte = carte[pos.x][pos.y].bombe.decompte;
+                carte[pos.x][pos.y-1].bombe.proprio = carte[pos.x][pos.y].bombe.proprio;
+                carte[pos.x][pos.y].bombe.radius = 0;
+                carte[pos.x][pos.y].bombe.decompte = -1;
+                carte[pos.x][pos.y].bombe.proprio = -1;
+            }
+            break;
+            /*joueur
+             * bombe
+             * square*/
+        case BAS :
+            if(carte[pos.x][pos.y-1].idJoueur>0 && carte[pos.x][pos.y+1].bloc.type ==0){
+                carte[pos.x][pos.y+1].bombe.radius = carte[pos.x][pos.y].bombe.radius;
+                carte[pos.x][pos.y+1].bombe.decompte = carte[pos.x][pos.y].bombe.decompte;
+                carte[pos.x][pos.y+1].bombe.proprio = carte[pos.x][pos.y].bombe.proprio;
+                carte[pos.x][pos.y].bombe.radius = 0;
+                carte[pos.x][pos.y].bombe.decompte = -1;
+                carte[pos.x][pos.y].bombe.proprio = -1;
+            }
+            break;
+        /*square bombe joueur*/
+        case GAUCHE :
+            if(carte[pos.x+1][pos.y].idJoueur>0 && carte[pos.x-1][pos.y].bloc.type ==0){
+                carte[pos.x+1][pos.y].bombe.radius = carte[pos.x][pos.y].bombe.radius;
+                carte[pos.x+1][pos.y].bombe.decompte = carte[pos.x][pos.y].bombe.decompte;
+                carte[pos.x+1][pos.y].bombe.proprio = carte[pos.x][pos.y].bombe.proprio;
+                carte[pos.x][pos.y].bombe.radius = 0;
+                carte[pos.x][pos.y].bombe.decompte = -1;
+                carte[pos.x][pos.y].bombe.proprio = -1;
+            }
+            break;
+            /*joueur bombe square*/
+        case DROITE : 
+            if(carte[pos.x-1][pos.y].idJoueur>0 && carte[pos.x+1][pos.y].bloc.type ==0){
+                    carte[pos.x-1][pos.y].bombe.radius = carte[pos.x][pos.y].bombe.radius;
+                    carte[pos.x-1][pos.y].bombe.decompte = carte[pos.x][pos.y].bombe.decompte;
+                    carte[pos.x-1][pos.y].bombe.proprio = carte[pos.x][pos.y].bombe.proprio;
+                    carte[pos.x][pos.y].bombe.radius = 0;
+                    carte[pos.x][pos.y].bombe.decompte = -1;
+                    carte[pos.x][pos.y].bombe.proprio = -1;
+                }
+            break;
+    }
 }

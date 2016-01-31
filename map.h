@@ -34,17 +34,31 @@ int longueur_map;/* Multiple de 2 */
 
 /*Nombre de bonus pour chaque bonus*/
 
-#define N_FEU 2
-#define N_GLACE 2
-#define N_MINE 1
-#define N_PRADIUS 12
-#define N_MRADIUS 6
-#define N_PVITESSE 10
-#define N_MVITESSE 5
-#define N_PBOMBE 50
-#define N_MBOMBE 10
-#define N_PVIE 4
-#define N_POUSSEE 6
+#define RIEN            0
+#define FEU              1
+#define GLACE         2
+#define MINE            3 /*pas implémenté parce que personne ne tombe dans ce piege. Et si on l'affiche pas, ca devient trop dur.*/
+#define PRADIUS      4 /*ok*/
+#define MRADIUS     5 /*ok*/
+#define PVITESSE     6 /*ok*/
+#define MVITESSE    7 /*ok*/
+#define PBOMBE       8 
+#define MBOMBE      9 
+#define PVIE             10 /*ok*/
+#define POUSSEE     11
+
+#define N_FEU 0
+#define N_GLACE 0
+#define N_MINE 0
+#define N_PRADIUS 5
+#define N_MRADIUS 0
+#define N_PVITESSE 5
+#define N_MVITESSE 0
+#define N_PBOMBE 30
+#define N_MBOMBE 0
+#define N_PVIE 5
+#define N_POUSSEE 0
+
 
 typedef struct position{
     short int x;
@@ -60,7 +74,6 @@ typedef struct bombe{
     int decompte;
     int radius;
     int proprio;
-    int animation;
     int aExplose;
 }Bombe;
 
@@ -77,21 +90,6 @@ typedef struct square{
     short int bonus; /*SELON TABLEAU CI DESSOUS*/
     short int danger;
 }Square;
-
-/* TABLEAU DES BONUS
-rien        0 :
-feu         1 : 2
-glace       2 : 2
-mine        3 : 1
-radius++    4 : 12
-radius--    5 : 6
-vitesse++   6 : 10
-vitesse--   7 : 5
-bombe++     8 : 30
-bombe--     9 : 10
-vie++       10 : 4
-poussee     11 : 6
-*/
 
 typedef struct perso{
     short int id;
@@ -119,9 +117,11 @@ void init_map(Square** carte, int longueur, int hauteur);
 
 void generationBonus(Square** carte);
 
-void recuperationBonus(Square** carte, Position pos, Perso* tab_perso); /*Appelée quand un joueur se déplace sur une case avec un bonus*/
+void recuperationBonus(Square** carte, Perso* joueur);
+void detruire_bloc(SDL_Surface* screenSurface, Square** carte, Position pos);
 
-void detruire_bloc(Square** carte, int posX, int posY);
+void getbonus_Bombe(Square** carte, int x, int y, Perso* joueur);
+void getbonus_Vie(Square** carte, int x, int y, Perso* joueur);
 
 #endif /* _MAP_H*/
 
