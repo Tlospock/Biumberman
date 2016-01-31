@@ -279,15 +279,15 @@ void detruire_bloc(SDL_Surface* screenSurface, Square** carte, Position pos){
     
 }
 
-
-/************************************/
-/* y-1 square
- * y bombe
- * y +1 joueur*/
-
 void pousser(Square** carte, Position pos, Perso* joueur){
     switch(joueur->direction){
+        /* y-1 square
+        * y bombe
+        * y +1 joueur*/
         case HAUT :
+        /*S'il y a bien un joueur sous la bombe et si le bloc au dessus de la bombe est un bloc d'air,
+         * alors on assigne les propriétés de la bombe à la case d'au dessus
+         * puis on réinitialise la case d'origine de la bombe*/
             if(carte[pos.x][pos.y+1].idJoueur>0 && carte[pos.x][pos.y-1].bloc.type ==0){
                 carte[pos.x][pos.y-1].bombe.radius = carte[pos.x][pos.y].bombe.radius;
                 carte[pos.x][pos.y-1].bombe.decompte = carte[pos.x][pos.y].bombe.decompte;
