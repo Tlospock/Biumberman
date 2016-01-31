@@ -60,14 +60,26 @@ void init_perso(Square **carte, Perso* tab_perso, int nb_perso){
 /*renvoie 1 si déplacement possible, sinon 0
  * Si possible alors déplace.*/
 int deplacer(Square** carte, Perso* joueur){
+    Position posbombe;
     if(joueur->vie > 0 && joueur->nbpas ==0) {
         switch(joueur->direction)
         {
             case(BAS):
                 if(joueur->pos.y >= hauteur_map-1)
                     break;
-                if(carte[joueur->pos.x][joueur->pos.y+1].bloc.type!=0 || carte[joueur->pos.x][joueur->pos.y+1].bombe.radius!=0)
+                if(carte[joueur->pos.x][joueur->pos.y+1].bloc.type!=0 )
                     break;
+                if(carte[joueur->pos.x][joueur->pos.y+1].bombe.radius!=0) {
+                    if(joueur->poussee) {
+                        printf("tadaaaaa!\n");
+                        posbombe.x = joueur->pos.x;
+                        posbombe.x = joueur->pos.y;
+                        pousser(carte, posbombe, BAS);
+                    }
+                    else {
+                        break;
+                    }
+                }
                 carte[joueur->pos.x][joueur->pos.y].idJoueur = -1;
                 joueur->pos.y++;
                 carte[joueur->pos.x][joueur->pos.y].idJoueur = joueur->id;
@@ -78,8 +90,17 @@ int deplacer(Square** carte, Perso* joueur){
             case(HAUT):
                 if(joueur->pos.y <= 0)
                     break;
-                if(carte[joueur->pos.x][joueur->pos.y-1].bloc.type!=0 || carte[joueur->pos.x][joueur->pos.y-1].bombe.radius!=0)
+                if(carte[joueur->pos.x][joueur->pos.y-1].bloc.type!=0)
                     break;
+                if(carte[joueur->pos.x][joueur->pos.y-1].bombe.radius!=0){
+                    if(joueur->poussee){
+                        posbombe.x = joueur->pos.x;
+                        posbombe.y = joueur->pos.y;
+                        pousser(carte, posbombe, HAUT);
+                    }else{
+                        break;
+                    }
+                }
                 carte[joueur->pos.x][joueur->pos.y].idJoueur = -1;
                 joueur->pos.y--;
                 carte[joueur->pos.x][joueur->pos.y].idJoueur = joueur->id;
@@ -90,8 +111,17 @@ int deplacer(Square** carte, Perso* joueur){
             case(GAUCHE):
                 if(joueur->pos.x <= 0)
                     break;
-                if(carte[joueur->pos.x-1][joueur->pos.y].bloc.type!=0 || carte[joueur->pos.x-1][joueur->pos.y].bombe.radius!=0)
+                if(carte[joueur->pos.x-1][joueur->pos.y].bloc.type!=0)
                     break;
+                if(carte[joueur->pos.x-1][joueur->pos.y].bombe.radius!=0){
+                    if(joueur->poussee){
+                        posbombe.x = joueur->pos.x-1;
+                        posbombe.y = joueur->pos.y;
+                        pousser(carte, posbombe, GAUCHE);
+                    }else{
+                        break;
+                    }
+                }
                 carte[joueur->pos.x][joueur->pos.y].idJoueur = -1;
                 joueur->pos.x--;
                 carte[joueur->pos.x][joueur->pos.y].idJoueur = joueur->id;
@@ -102,8 +132,17 @@ int deplacer(Square** carte, Perso* joueur){
             case(DROITE):
                 if(joueur->pos.x >= longueur_map-1)
                     break;
-                if(carte[joueur->pos.x+1][joueur->pos.y].bloc.type!=0 || carte[joueur->pos.x+1][joueur->pos.y].bombe.radius!=0)
+                if(carte[joueur->pos.x+1][joueur->pos.y].bloc.type!=0)
                     break;
+                if(carte[joueur->pos.x+1][joueur->pos.y].bombe.radius!=0){
+                    if(joueur->poussee){
+                        posbombe.x = joueur->pos.x+1;
+                        posbombe.y = joueur->pos.y;
+                        pousser(carte, posbombe, DROITE);
+                    }else{
+                        break;
+                    }
+                }
                 carte[joueur->pos.x][joueur->pos.y].idJoueur = -1;
                 joueur->pos.x++;
                 carte[joueur->pos.x][joueur->pos.y].idJoueur = joueur->id;

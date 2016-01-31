@@ -24,6 +24,7 @@ void init_map(Square** carte, int longueur, int hauteur)
             carte[i][j].bombe.radius = 0;
             carte[i][j].bombe.proprio = -1;
             carte[i][j].bombe.aExplose = -1;
+            carte[i][j].bombe.nbpas = 0;
 
             carte[i][j].bonus =0;
 
@@ -254,7 +255,9 @@ void recuperationBonus(Square** carte, Perso* joueur){
                 joueur->vitesse+=1;
                 break;
             case MVITESSE:
-                joueur->vitesse-=1;
+                if(joueur->vitesse>1){
+                    joueur->vitesse-=1;
+                }
                 break;
             case PBOMBE:
                 joueur->nbBombeTot++;
@@ -279,19 +282,23 @@ void detruire_bloc(SDL_Surface* screenSurface, Square** carte, Position pos){
     
 }
 
-void pousser(Square** carte, Position pos, Perso* joueur){
-    switch(joueur->direction){
+/*prend la carte, la position de la bombe à pousser, la direction dans laquelle pousser la bombe
+ * puis pousse la bombe.*/
+void pousser(Square** carte, Position pos, int dirJoueur){
+    switch(dirJoueur){
         /* y-1 square
         * y bombe
         * y +1 joueur*/
         case HAUT :
-        /*S'il y a bien un joueur sous la bombe et si le bloc au dessus de la bombe est un bloc d'air,
-         * alors on assigne les propriétés de la bombe à la case d'au dessus
-         * puis on réinitialise la case d'origine de la bombe*/
-            if(carte[pos.x][pos.y+1].idJoueur>0 && carte[pos.x][pos.y-1].bloc.type ==0){
+        printf("CASE UP\n");
+        /* S'il n'y a pas de joueur sur la case suivante et qu'il n'y a pas de bombe dessus et qu'elle est un bloc d'air */
+            if(carte[pos.x][pos.y-1].bloc.type ==0 && carte[pos.x][pos.y-1].bombe.radius <1){
+                printf("ENTER IN DA CONDITION MAGUEULE\n");
+                carte[pos.x][pos.y-1].bombe.nbpas = 39;
                 carte[pos.x][pos.y-1].bombe.radius = carte[pos.x][pos.y].bombe.radius;
                 carte[pos.x][pos.y-1].bombe.decompte = carte[pos.x][pos.y].bombe.decompte;
                 carte[pos.x][pos.y-1].bombe.proprio = carte[pos.x][pos.y].bombe.proprio;
+                carte[pos.x][pos.y-1].bombe.direction = HAUT;
                 carte[pos.x][pos.y].bombe.radius = 0;
                 carte[pos.x][pos.y].bombe.decompte = -1;
                 carte[pos.x][pos.y].bombe.proprio = -1;
@@ -301,21 +308,35 @@ void pousser(Square** carte, Position pos, Perso* joueur){
              * bombe
              * square*/
         case BAS :
-            if(carte[pos.x][pos.y-1].idJoueur>0 && carte[pos.x][pos.y+1].bloc.type ==0){
+            printf("VALUES OF CONDITION : %d \n", carte[pos.x][pos.y+1].idJoueur>0); 
+            printf("VALUES OF CONDITION : %d \n", carte[pos.x][pos.y+1].bloc.type ==0); 
+            printf("VALUES OF CONDITION : %d \n", carte[pos.x][pos.y+1].bombe.radius); 
+            printf("VALUES OF CONDITION : %d \n", carte[pos.x][pos.y].bombe.radius); 
+            if(carte[pos.x][pos.y+1].bloc.type ==0 && carte[pos.x][pos.y+1].bombe.radius == 0){
+                printf("WERKS IN MY MACHINE\n");
+                carte[pos.x][pos.y+1].bombe.nbpas = 39;
                 carte[pos.x][pos.y+1].bombe.radius = carte[pos.x][pos.y].bombe.radius;
                 carte[pos.x][pos.y+1].bombe.decompte = carte[pos.x][pos.y].bombe.decompte;
                 carte[pos.x][pos.y+1].bombe.proprio = carte[pos.x][pos.y].bombe.proprio;
+                carte[pos.x][pos.y+1].bombe.direction = BAS;
                 carte[pos.x][pos.y].bombe.radius = 0;
                 carte[pos.x][pos.y].bombe.decompte = -1;
                 carte[pos.x][pos.y].bombe.proprio = -1;
-            }
+                printf("TESTING THE BOMB : %d\n", carte[pos.x][pos.y+1].bombe.nbpas);
+                printf("TESTING THE BOMB : %d\n", carte[pos.x][pos.y+1].bombe.radius);
+                printf("TESTING THE BOMB : %d\n", carte[pos.x][pos.y+1].bombe.decompte);
+                printf("TESTING THE BOMB : %d\n", carte[pos.x][pos.y+1].bombe.proprio);
+                printf("TESTING THE BOMB : %d\n", carte[pos.x][pos.y+1].bombe.direction);
+          }
             break;
         /*square bombe joueur*/
         case GAUCHE :
-            if(carte[pos.x+1][pos.y].idJoueur>0 && carte[pos.x-1][pos.y].bloc.type ==0){
-                carte[pos.x+1][pos.y].bombe.radius = carte[pos.x][pos.y].bombe.radius;
-                carte[pos.x+1][pos.y].bombe.decompte = carte[pos.x][pos.y].bombe.decompte;
-                carte[pos.x+1][pos.y].bombe.proprio = carte[pos.x][pos.y].bombe.proprio;
+            if(carte[pos.x-1][pos.y].bloc.type ==0 && carte[pos.x-1][pos.y].bombe.radius <1){
+                carte[pos.x-1][pos.y].bombe.nbpas = 39;
+                carte[pos.x-1][pos.y].bombe.radius = carte[pos.x][pos.y].bombe.radius;
+                carte[pos.x-1][pos.y].bombe.decompte = carte[pos.x][pos.y].bombe.decompte;
+                carte[pos.x-1][pos.y].bombe.proprio = carte[pos.x][pos.y].bombe.proprio;
+                carte[pos.x-1][pos.y].bombe.direction = GAUCHE;
                 carte[pos.x][pos.y].bombe.radius = 0;
                 carte[pos.x][pos.y].bombe.decompte = -1;
                 carte[pos.x][pos.y].bombe.proprio = -1;
@@ -323,10 +344,12 @@ void pousser(Square** carte, Position pos, Perso* joueur){
             break;
             /*joueur bombe square*/
         case DROITE : 
-            if(carte[pos.x-1][pos.y].idJoueur>0 && carte[pos.x+1][pos.y].bloc.type ==0){
-                    carte[pos.x-1][pos.y].bombe.radius = carte[pos.x][pos.y].bombe.radius;
-                    carte[pos.x-1][pos.y].bombe.decompte = carte[pos.x][pos.y].bombe.decompte;
-                    carte[pos.x-1][pos.y].bombe.proprio = carte[pos.x][pos.y].bombe.proprio;
+            if(carte[pos.x+1][pos.y].bloc.type ==0 && carte[pos.x+1][pos.y].bombe.radius <1){
+                    carte[pos.x+1][pos.y].bombe.nbpas = 39;
+                    carte[pos.x+1][pos.y].bombe.radius = carte[pos.x][pos.y].bombe.radius;
+                    carte[pos.x+1][pos.y].bombe.decompte = carte[pos.x][pos.y].bombe.decompte;
+                    carte[pos.x+1][pos.y].bombe.proprio = carte[pos.x][pos.y].bombe.proprio;
+                    carte[pos.x+1][pos.y].bombe.direction = DROITE;
                     carte[pos.x][pos.y].bombe.radius = 0;
                     carte[pos.x][pos.y].bombe.decompte = -1;
                     carte[pos.x][pos.y].bombe.proprio = -1;
@@ -334,3 +357,4 @@ void pousser(Square** carte, Position pos, Perso* joueur){
             break;
     }
 }
+

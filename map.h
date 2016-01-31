@@ -50,13 +50,13 @@ int longueur_map;/* Multiple de 2 */
 #define N_FEU 0
 #define N_GLACE 0
 #define N_MINE 0
-#define N_PRADIUS 6
-#define N_MRADIUS 3
-#define N_PVITESSE 5
-#define N_MVITESSE 2
-#define N_PBOMBE 20
-#define N_MBOMBE 7
-#define N_PVIE 5
+#define N_PRADIUS 0
+#define N_MRADIUS 0
+#define N_PVITESSE 0
+#define N_MVITESSE 50
+#define N_PBOMBE 0
+#define N_MBOMBE 0
+#define N_PVIE 0
 #define N_POUSSEE 0
 
 
@@ -75,6 +75,8 @@ typedef struct bombe{
     int radius;
     int proprio;
     int aExplose;
+    int nbpas;
+    int direction; /*HAUT BAS GAUCHE DROITE*/
 }Bombe;
 
 typedef struct caseIA{
@@ -119,9 +121,7 @@ void generationBonus(Square** carte);
 
 void recuperationBonus(Square** carte, Perso* joueur);
 void detruire_bloc(SDL_Surface* screenSurface, Square** carte, Position pos);
-
-void getbonus_Bombe(Square** carte, int x, int y, Perso* joueur);
-void getbonus_Vie(Square** carte, int x, int y, Perso* joueur);
+void pousser(Square** carte, Position pos, int dirJoueur);
 
 #endif /* _MAP_H*/
 

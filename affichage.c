@@ -80,7 +80,7 @@ void refresh_map(SDL_Window* window, SDL_Surface* screenSurface, Square** carte,
                 }
                 if(carte[i-1][j-1].bombe.radius>0)
                 {
-                    animbombe(screenSurface, &(carte[i-1][j-1].bombe), posTile);
+                    animbombe(screenSurface, &(carte[i-1][j-1].bombe), posTile, carte);
                 }
             }
         }
@@ -94,7 +94,7 @@ void refresh_map(SDL_Window* window, SDL_Surface* screenSurface, Square** carte,
                 if(carte[i-1][j-1].bombe.aExplose > 0){
                     animexplosion(screenSurface, &(carte[i-1][j-1].bombe), posTile, carte, tabJoueur[carte[i-1][j-1].bombe.proprio].radius);
                 }
-                if(carte[i-1][j-1].bonus != RIEN && carte[i-1][j-1].bloc.type == 0){
+                if(carte[i-1][j-1].bonus != RIEN/* && carte[i-1][j-1].bloc.type == 0*/){
                     affichebonus(screenSurface, carte[i-1][j-1].bonus, &posTile);
                 }
         }
@@ -405,7 +405,7 @@ void refresh_perso(SDL_Surface* screenSurface, Perso* joueur){
 }
 
 /*animation de la bombe jusqu'à ce qu'elle explose*/
-void animbombe(SDL_Surface* screenSurface, Bombe *bombe, SDL_Rect pos){
+void animbombe(SDL_Surface* screenSurface, Bombe *bombe, SDL_Rect pos, Square** carte){
     int i;
     SDL_Surface* sprite = NULL;
     SDL_Rect spriteClip[2];
@@ -426,6 +426,42 @@ void animbombe(SDL_Surface* screenSurface, Bombe *bombe, SDL_Rect pos){
         SDL_SetColorKey(sprite, 1, SDL_MapRGB(sprite->format, 0, 255, 0));
         SDL_BlitSurface(sprite, &(spriteClip[((COMPTE_A_REBOURS-(SDL_GetTicks()-bombe->decompte))/500) %2]), screenSurface, &pos);
     }
+    /*Sinon, si la bombe est en déplacement BONUS POUSSEE*/
+    else if(bombe->nbpas>0){
+        switch(bombe->direction){
+            case HAUT :
+                pos.x = pos.x ;
+                pos.y = pos.y + bombe->nbpas;
+                SDL_BlitSurface(sprite, &(spriteClip[((COMPTE_A_REBOURS-(SDL_GetTicks()-bombe->decompte))/500) %2]), screenSurface, &pos);
+                break;
+            case BAS :
+                pos.x = pos.x ;
+                pos.y = pos.y - bombe->nbpas;
+                SDL_BlitSurface(sprite, &(spriteClip[((COMPTE_A_REBOURS-(SDL_GetTicks()-bombe->decompte))/500) %2]), screenSurface, &pos);
+                break;
+            case GAUCHE :
+                pos.x = pos.x - bombe->nbpas;
+                pos.y = pos.y;
+                SDL_BlitSurface(sprite, &(spriteClip[((COMPTE_A_REBOURS-(SDL_GetTicks()-bombe->decompte))/500) %2]), screenSurface, &pos);
+                break;
+            case DROITE :
+                pos.x = pos.x + bombe->nbpas;
+                pos.y = pos.y;
+                SDL_BlitSurface(sprite, &(spriteClip[((COMPTE_A_REBOURS-(SDL_GetTicks()-bombe->decompte))/500) %2]), screenSurface, &pos);
+                break;
+        }
+    }
+    if(bombe->direction && bombe->nbpas>1){
+        bombe->nbpas--;
+    }
+    if(bombe->direction && bombe->nbpas==0){
+        Position posBombe;
+        posBombe.x = pos.x / TILE_SIZE;
+        posBombe.y = pos.y / TILE_SIZE;
+        bombe->nbpas = 39;
+        pousser(carte, posBombe, bombe->direction);
+    }
+    
     SDL_FreeSurface(sprite);
 }
 
