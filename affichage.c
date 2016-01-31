@@ -4,7 +4,7 @@
 int initierSDL(SDL_Window** window, SDL_Surface** screenSurface){
     int success = 1;
     /*initier SDL*/
-    if( SDL_Init( SDL_INIT_VIDEO ) < 0 ){
+    if( SDL_Init( SDL_INIT_VIDEO | SDL_INIT_AUDIO ) < 0 ){
         printf( "SDL mal initialisee ! SDL_Error: %s\n", SDL_GetError() );
         success = 0;
     }else{
@@ -30,6 +30,63 @@ int initierSDL(SDL_Window** window, SDL_Surface** screenSurface){
             }
         }
     }
+    /*Initialiser SDL_mixer*/
+    if( Mix_OpenAudio( 24000, MIX_DEFAULT_FORMAT, 2, 2048 ) < 0 )
+    {
+        printf( "SDL_mixer initialisation a foiré! SDL_mixer Error: %s\n", Mix_GetError() );
+        success = 0;
+    }
+
+    return success;
+}
+
+void load_sound(Mix_Music** musicEnJeu, Mix_Music** musicMenu, Mix_Chunk** explosion, Mix_Chunk** recupBonus,Mix_Chunk** recupMalus, Mix_Chunk** sonMenu)
+{
+    int success = 1;
+
+     /*Load Effets sonores*/
+    *explosion = Mix_LoadWAV( "Sound/explo.wav" );
+    if( explosion == NULL )
+    {
+        printf( "Chargement de explo.wav a échoué! SDL_mixer Error: %s\n", Mix_GetError() );
+        success = 0;
+    }
+
+    *recupBonus = Mix_LoadWAV( "Sound/recupBonus.wav" );
+    if( recupBonus == NULL )
+    {
+        printf( "Chargement de recupBonus.wav a échoué!! SDL_mixer Error: %s\n", Mix_GetError() );
+        success = 0;
+    }
+
+    *recupMalus = Mix_LoadWAV( "Sound/recupMalus.wav" );
+    if( recupMalus == NULL )
+    {
+        printf( "Chargement de explo.wav a échoué!! SDL_mixer Error: %s\n", Mix_GetError() );
+        success = 0;
+    }
+    *sonMenu = Mix_LoadWAV( "Sound/sonMenu.wav" );
+    if( sonMenu == NULL )
+    {
+        printf( "Chargement de sonMenu.wav a échoué!! SDL_mixer Error: %s\n", Mix_GetError() );
+        success = 0;
+    }
+
+    /*Load Musique*/
+    *musicEnJeu = Mix_LoadMUS( "Sound/musicEnJeu.wav" );
+    if( musicEnJeu == NULL )
+    {
+        printf( "Chargement de musicEnJeu.wav a échoué!! SDL_mixer Error: %s\n", Mix_GetError() );
+        success = 0;
+    }
+
+    *musicMenu = Mix_LoadMUS( "Sound/musicMenu.wav" );
+    if( musicMenu == NULL )
+    {
+        printf( "Chargement de musicMenu.wav a échoué!t! SDL_mixer Error: %s\n", Mix_GetError() );
+        success = 0;
+    }
+
     return success;
 }
 
@@ -112,6 +169,7 @@ void refresh_map(SDL_Window* window, SDL_Surface* screenSurface, Square** carte,
 void quitter(SDL_Window* window, SDL_Surface* screenSurface){
     SDL_FreeSurface(screenSurface);
     SDL_DestroyWindow(window);
+    Mix_Quit();
     SDL_Quit();
 }
 
@@ -129,16 +187,16 @@ int inputNbJoueurs(SDL_Window* window, SDL_Surface* screenSurface, int nbPerso){
     SDL_Rect ecr;
     ecr.x = (longueur_map*TILE_SIZE)/2 - 200;
     ecr.y = 30;
-  
-    SDL_Surface *bouton1 = NULL; 
+
+    SDL_Surface *bouton1 = NULL;
     SDL_Rect b1;
     b1.x = ((longueur_map*TILE_SIZE)/2)-20-50;
     b1.y = ((hauteur_map*TILE_SIZE)/2)-20-50;
     bouton1 = SDL_LoadBMP("Img/bouton1.bmp");
-        
+
     SDL_Surface* bouton2 = NULL;
     SDL_Rect b2;
-    
+
     if(nbPerso >1){
         b2.x = (longueur_map*TILE_SIZE)/2-20-50;
         b2.y = (hauteur_map*TILE_SIZE)/2-20+50;
@@ -149,7 +207,7 @@ int inputNbJoueurs(SDL_Window* window, SDL_Surface* screenSurface, int nbPerso){
         SDL_SetColorKey(bouton2, 1, SDL_MapRGB(bouton2->format, 0, 255, 0));
         SDL_BlitSurface(bouton2, NULL, screenSurface, &b2);
     }
-    
+
     ecriteau = SDL_LoadBMP("Img/ecriteau_joueurs.bmp");
     if(bouton1 ==NULL || ecriteau == NULL){
         printf("\nBoutons nuls : SDL error = %s\n", SDL_GetError());
@@ -159,13 +217,13 @@ int inputNbJoueurs(SDL_Window* window, SDL_Surface* screenSurface, int nbPerso){
 
     SDL_BlitSurface(bouton1, NULL, screenSurface, &b1);
     SDL_BlitSurface(ecriteau, NULL, screenSurface, &ecr);
-    
+
     SDL_FreeSurface(bouton1);
     SDL_FreeSurface(bouton2);
     SDL_FreeSurface(ecriteau);
-    
+
     SDL_UpdateWindowSurface(window);
-    
+
 /*GESTION DU CLIC SUR LE BOUTON*/
     /*Si clic, vérifier la pos de la souris, si sur un bouton, alors sélectionner nb de joueurs*/
     SDL_Event e;
@@ -197,7 +255,7 @@ int inputNbPersos(SDL_Window* window, SDL_Surface* screenSurface){
     int nbPersos = 0;
     SDL_Event e;
     int x, y;
-    
+
      /*AFFICHAGE DES BOUTONS
   * bouton1 = 1joueur, bouton2= 2joueurs, ...*/
     SDL_Surface *ecriteau = NULL;
@@ -377,9 +435,9 @@ void refresh_perso(SDL_Surface* screenSurface, Perso* joueur){
                 SDL_BlitSurface(joueur->sprite, &joueur->spriteClip[((joueur->nbpas/LIMITFRAME)%2)+10], screenSurface, &pos);
                 break;
         }
-        /*v=d/t, en augmentant le nb de pas au coef de vitesse du joueur, on augmente le découpage de la distance et donc ça va plus vite 
+        /*v=d/t, en augmentant le nb de pas au coef de vitesse du joueur, on augmente le découpage de la distance et donc ça va plus vite
          * donc on peut passer de 40 à 20 pas*/
-        joueur->nbpas-=joueur->vitesse; 
+        joueur->nbpas-=joueur->vitesse;
         if(joueur->nbpas < 0){ /*S'il a fini de se deplacer*/
             joueur->deplacement = 0;
             joueur->nbpas =0;
@@ -409,13 +467,13 @@ void animbombe(SDL_Surface* screenSurface, Bombe *bombe, SDL_Rect pos, Square** 
     int i;
     SDL_Surface* sprite = NULL;
     SDL_Rect spriteClip[2];
-    
+
     sprite = SDL_LoadBMP("Img/bombe_explode.bmp");
     if(sprite == NULL){
         printf("\nPas pu load sprite bombe : %s", SDL_GetError());
         exit(EXIT_FAILURE);
     }
-    
+
     for(i=0; i<2; i++){
         spriteClip[i].x = i*TILE_SIZE;
         spriteClip[i].y = 0;
@@ -471,7 +529,7 @@ void animexplosion(SDL_Surface* screenSurface, Bombe *bombe, SDL_Rect pos, Squar
     SDL_Rect cpy_pos;
     SDL_Surface* sprite = NULL;
     SDL_Rect spriteClip[6];
-    
+
     /*Ces booleens memorisent les obstacles, car l'animation doit s'arreter à leur rencontre*/
     char obstacle_haut = 0;
     char obstacle_bas = 0;
@@ -490,13 +548,13 @@ void animexplosion(SDL_Surface* screenSurface, Bombe *bombe, SDL_Rect pos, Squar
         spriteClip[i].w = TILE_SIZE;
         spriteClip[i].h = TILE_SIZE;
     }
-        
+
         if((SDL_GetTicks()-bombe->aExplose) <= 1200){ /*Si ce n'est pas la fin du tab de sprites d'explosion, on le parcourt*/
             /*case de la bombe*/
             SDL_BlitSurface(sprite, &spriteClip[(((SDL_GetTicks()-bombe->aExplose)/200) %6)], screenSurface, &pos);
             /*CASES AUTOUR DE LEPICENTRE DE LA BOMBE*/
             for(i=1; i<=radius; i++){
-                /*cases vers le haut*/ 
+                /*cases vers le haut*/
                 cpy_pos.x = pos.x;
                 cpy_pos.y = pos.y - TILE_SIZE * i;
                 /*si pas d'obstacle AND pas au bord de la carte AND pas un bloc indestructible ==> pas de nuage*/
@@ -520,7 +578,7 @@ void animexplosion(SDL_Surface* screenSurface, Bombe *bombe, SDL_Rect pos, Squar
                 cpy_pos.x = pos.x- TILE_SIZE * i;
                 cpy_pos.y = pos.y;
                 /*cases vers la gauche*/
-                if(!obstacle_gauche && (cpy_pos.x>=TILE_SIZE) && carte[cpy_pos.x/TILE_SIZE-1][cpy_pos.y/TILE_SIZE-1].bloc.type == 0){ 
+                if(!obstacle_gauche && (cpy_pos.x>=TILE_SIZE) && carte[cpy_pos.x/TILE_SIZE-1][cpy_pos.y/TILE_SIZE-1].bloc.type == 0){
                     SDL_BlitSurface(sprite, &(spriteClip[(((SDL_GetTicks()-bombe->aExplose)/200) %6)]), screenSurface, &cpy_pos);
                 }else{
                     obstacle_gauche = 1;
@@ -533,13 +591,13 @@ void animexplosion(SDL_Surface* screenSurface, Bombe *bombe, SDL_Rect pos, Squar
                 }else{
                     obstacle_droite = 1;
                 }
-                
+
             }
         }else{ /*Sinon c'est que le nuage est dissipé, on remet la case à -1*/
             bombe->aExplose = -1;
         }
     SDL_FreeSurface(sprite);
-    
+
 }
 
 /*affichage du timer, une fois tombé de 120sec à 0, renvoie 1*/
@@ -547,23 +605,23 @@ int timer(SDL_Surface* screenSurface, int start){
     int fini = 0;
     int temps = SDL_GetTicks();
     int temps_sec = 0;
-    
+
     SDL_Color textColor = {0, 0, 0};
-        
+
     SDL_Rect posTimer;
     posTimer.x = longueur_map*TILE_SIZE -124;
     posTimer.y = 1;
     posTimer.w = 80;
     posTimer.h = TILE_SIZE-2;
-    
+
     SDL_Surface *fond_timer = SDL_CreateRGBSurface(0, posTimer.w, posTimer.h, 32, 0, 0, 0, 0);
     SDL_FillRect(fond_timer, NULL, SDL_MapRGB(screenSurface->format, 0xB5, 0xDB, 0xDA));
-    
+
     SDL_Rect postext;
     postext.x = posTimer.x+ posTimer.w/2 - 10;
     postext.y = 0;
-    
-    
+
+
     TTF_Font *font = NULL;
     font = TTF_OpenFont("CloisterBlack.ttf", 36);
     if(font == NULL){
@@ -574,7 +632,7 @@ int timer(SDL_Surface* screenSurface, int start){
     char chaine[4];
     SDL_Surface *textSurface = NULL;
     temps_sec = (temps - start)/1000;
-    
+
     int duree = 120;
     if(duree-temps_sec > -1 && temps_sec<duree*1000){
         sprintf(chaine, "%d", duree-temps_sec);
@@ -583,17 +641,17 @@ int timer(SDL_Surface* screenSurface, int start){
             printf("Pas pu load la textSurface ! Erreur : %s", TTF_GetError());
             exit(EXIT_FAILURE);
         }
-        
+
         SDL_BlitSurface(fond_timer, NULL, screenSurface, &posTimer);
         SDL_BlitSurface(textSurface, NULL, screenSurface, &postext);
     }else{
         fini = 1;
     }
-    
+
     SDL_FreeSurface(textSurface);
     SDL_FreeSurface(fond_timer);
     TTF_CloseFont(font);
-    
+
     return fini;
 }
 
@@ -604,28 +662,28 @@ int timer(SDL_Surface* screenSurface, int start){
 int finjeu(SDL_Window* window, SDL_Surface* screenSurface, Perso* tab_joueurs, int nbjoueurs){
     int i;
     int cpt_gagnants=0;
-    
+
     SDL_Color textColor = {0, 0, 0};
     TTF_Font *font = NULL;
     font = TTF_OpenFont("CloisterBlack.ttf", 36);
-    
+
     /*
-     * 
+     *
      *  AFFICHER LE GAGNANT OU L EGALITE OU LA DEFAITE
-     * 
-     * 
+     *
+     *
       */
-     
+
     /*surface où afficher les scores, avec une jolie ptite bordure*/
     SDL_Rect posCadre;
     posCadre.w = 504;
     posCadre.h = 104;
     posCadre.x = (screenSurface->w/2)-(posCadre.w/2);
     posCadre.y = (screenSurface->h/2)-(posCadre.h/2);
-    
+
     SDL_Surface *cadre = SDL_CreateRGBSurface(0, posCadre.w, posCadre.h, 32, 0, 0, 0, 0);
     SDL_FillRect(cadre, NULL, SDL_MapRGB(screenSurface->format, 0x1E, 0x10, 0x05));
-    
+
     SDL_Rect posEncadre;
     posEncadre.w = 500;
     posEncadre.h = 100;
@@ -638,15 +696,15 @@ int finjeu(SDL_Window* window, SDL_Surface* screenSurface, Perso* tab_joueurs, i
         fprintf(stderr, "CreateRGBSurface failed: %s\n", SDL_GetError());
         exit(1);
     }
-    
+
     SDL_Rect postext;
     postext.x = posEncadre.x + 40;
     postext.y = posEncadre.y + 40;
     postext.h = 40;
     postext.w = posEncadre.w;
-    
+
     SDL_Surface *textSurface = NULL;
-    
+
     char chaine[50];
     for(i=0; i<nbjoueurs; i++){
         if(tab_joueurs[i].gagnant==1){
@@ -667,23 +725,23 @@ int finjeu(SDL_Window* window, SDL_Surface* screenSurface, Perso* tab_joueurs, i
             }
         }
     }
-    
+
     textSurface = TTF_RenderText_Solid(font, chaine, textColor);
     if(textSurface == NULL){
         printf("Pas pu load la textSurface ! Erreur : %s", TTF_GetError());
         exit(EXIT_FAILURE);
     }
-            
+
     postext.y = posEncadre.y + 40;
     SDL_BlitSurface(cadre, NULL, screenSurface, &posCadre);
     SDL_BlitSurface(encadre, NULL, screenSurface, &posEncadre);
     SDL_BlitSurface(textSurface, NULL, screenSurface, &postext);
 
     /*
-     * 
+     *
      *  AFFICHER LES BOUTONS QUITTER OU RECOMMENCER
-     * 
-     * 
+     *
+     *
       */
 
     SDL_Surface *textQuit = NULL;
@@ -693,39 +751,39 @@ int finjeu(SDL_Window* window, SDL_Surface* screenSurface, Perso* tab_joueurs, i
     posQuit.w = 100;
     posQuit.x = longueur_map*TILE_SIZE/2 - posQuit.w/2-40;
     posQuit.y = hauteur_map*TILE_SIZE -posQuit.h - 40;
-    
+
     SDL_Surface *boutonQuit = SDL_CreateRGBSurface(0, posQuit.w, posQuit.h, 32, 0, 0, 0, 0);
     SDL_FillRect(boutonQuit, NULL, SDL_MapRGB(screenSurface->format, 0xA0, 0x68, 0x3A));
-    
+
     textQuit = TTF_RenderText_Solid(font, "Quitter", textColor);
     if(textQuit == NULL){
         printf("Pas pu load la textSurface ! Erreur : %s", TTF_GetError());
         exit(EXIT_FAILURE);
     }
-    
+
     SDL_BlitSurface(boutonQuit, NULL, screenSurface, &posQuit);
     SDL_BlitSurface(textQuit, NULL, screenSurface, &posQuit);
-    
+
     SDL_Surface *textRejouer = NULL;
-    
+
     SDL_Rect posRejouer;
     posRejouer.h = 60;
     posRejouer.w = 100;
     posRejouer.x = longueur_map*TILE_SIZE/2 + 40;
     posRejouer.y = hauteur_map*TILE_SIZE - posRejouer.h - 40;
-    
+
     SDL_Surface *boutonRejouer = SDL_CreateRGBSurface(0, posRejouer.w, posRejouer.h, 32, 0, 0, 0, 0);
     SDL_FillRect(boutonRejouer, NULL, SDL_MapRGB(screenSurface->format, 0xA0, 0x68, 0x3A));
-    
+
     textRejouer = TTF_RenderText_Solid(font, "Rejouer", textColor);
     if(textRejouer == NULL){
         printf("Pas pu load la textSurface ! Erreur : %s", TTF_GetError());
         exit(EXIT_FAILURE);
     }
-    
+
     SDL_BlitSurface(boutonRejouer, NULL, screenSurface, &posRejouer);
     SDL_BlitSurface(textRejouer, NULL, screenSurface, &posRejouer);
-    
+
     SDL_FreeSurface(cadre);
     SDL_FreeSurface(encadre);
     SDL_FreeSurface(textSurface);
@@ -734,7 +792,7 @@ int finjeu(SDL_Window* window, SDL_Surface* screenSurface, Perso* tab_joueurs, i
     SDL_FreeSurface(boutonQuit);
     SDL_FreeSurface(boutonRejouer);
     TTF_CloseFont(font);
-    
+
     SDL_UpdateWindowSurface(window);
     /*Clic sur le bouton*/
     SDL_Event event;
@@ -763,44 +821,44 @@ int finjeu(SDL_Window* window, SDL_Surface* screenSurface, Perso* tab_joueurs, i
 }
 
 void affichebonus(SDL_Surface* screenSurface, short int bonus, SDL_Rect *pos){
-   
+
    SDL_Surface* surfBonus = NULL;
-   
+
    switch(bonus){
         case FEU:
             surfBonus = SDL_LoadBMP("Img/fire.bmp");
             break;
-        case GLACE: 
+        case GLACE:
             surfBonus = SDL_LoadBMP("Img/ice.bmp");
             break;
-        case MINE: 
+        case MINE:
             surfBonus= SDL_LoadBMP("Img/bomb2.bmp");
             break;
-       case PRADIUS: 
+       case PRADIUS:
             surfBonus = SDL_LoadBMP("Img/radiusPlus.bmp");
             break;
-        case MRADIUS: 
+        case MRADIUS:
             surfBonus = SDL_LoadBMP("Img/radiusMoins.bmp");
             break;
-        case PVITESSE: 
+        case PVITESSE:
             surfBonus = SDL_LoadBMP("Img/vitessePlus.bmp");
             break;
-        case MVITESSE: 
+        case MVITESSE:
             surfBonus = SDL_LoadBMP("Img/vitesseMoins.bmp");
             break;
-        case PBOMBE: 
+        case PBOMBE:
             surfBonus = SDL_LoadBMP("Img/bomb2.bmp");
             break;
-        case MBOMBE: 
+        case MBOMBE:
             surfBonus = SDL_LoadBMP("Img/bomb2.bmp");
             break;
-        case PVIE: 
+        case PVIE:
             surfBonus = SDL_LoadBMP("Img/viePlus.bmp");
             break;
-        case POUSSEE: 
+        case POUSSEE:
             surfBonus = SDL_LoadBMP("Img/bomb2.bmp");
             break;
-            default : 
+            default :
                 printf("\n\nNO BONUS AVAILABLE HERE\n\n");
             break;
    }
@@ -811,6 +869,6 @@ void affichebonus(SDL_Surface* screenSurface, short int bonus, SDL_Rect *pos){
     SDL_SetColorKey(surfBonus, 1, SDL_MapRGB(surfBonus->format, 0, 255, 0));
     SDL_BlitSurface(surfBonus, NULL, screenSurface, pos);
     SDL_FreeSurface(surfBonus);
-    
+
 }
 

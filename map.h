@@ -3,10 +3,14 @@
 #ifndef __LINUX__
     #include <SDL2/SDL.h>
     #include <SDL2/SDL_ttf.h>
+    #include <SDL2/SDL_mixer.h>
 #elif __WIN32__
     #include <SDL.h>
     #include <SDL_ttf.h>
+    #include <SDL_mixer.h>
 #endif
+
+
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -42,21 +46,21 @@ int longueur_map;/* Multiple de 2 */
 #define MRADIUS     5 /*ok*/
 #define PVITESSE     6 /*ok*/
 #define MVITESSE    7 /*ok*/
-#define PBOMBE       8 
-#define MBOMBE      9 
+#define PBOMBE       8
+#define MBOMBE      9
 #define PVIE             10 /*ok*/
 #define POUSSEE     11
 
 #define N_FEU 0
 #define N_GLACE 0
 #define N_MINE 0
-#define N_PRADIUS 0
-#define N_MRADIUS 0
-#define N_PVITESSE 0
-#define N_MVITESSE 50
-#define N_PBOMBE 0
-#define N_MBOMBE 0
-#define N_PVIE 0
+#define N_PRADIUS 10
+#define N_MRADIUS 5
+#define N_PVITESSE 6
+#define N_MVITESSE 4
+#define N_PBOMBE 20
+#define N_MBOMBE 7
+#define N_PVIE 4
 #define N_POUSSEE 0
 
 
@@ -111,7 +115,7 @@ typedef struct perso{
     int nbpas;
     SDL_Rect spriteClip[12];
     SDL_Surface* sprite;
-    
+
     short int gagnant;
 }Perso;
 
@@ -119,7 +123,7 @@ void init_map(Square** carte, int longueur, int hauteur);
 
 void generationBonus(Square** carte);
 
-void recuperationBonus(Square** carte, Perso* joueur);
+void recuperationBonus(Square** carte, Perso* joueur, Mix_Chunk *sonBonus, Mix_Chunk *sonMalus);
 void detruire_bloc(SDL_Surface* screenSurface, Square** carte, Position pos);
 void pousser(Square** carte, Position pos, int dirJoueur);
 

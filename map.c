@@ -27,7 +27,6 @@ void init_map(Square** carte, int longueur, int hauteur)
             carte[i][j].bombe.nbpas = 0;
 
             carte[i][j].bonus =0;
-
             carte[i][j].idJoueur =-1;
             carte[i][j].danger=0;
 
@@ -97,12 +96,12 @@ void generationBonus(Square** carte)
 {
     int x, y;
     int i=1, j=0;
-    
+
     int tab_nbBonus[11] = {N_FEU, N_GLACE, N_MINE, N_PRADIUS, N_MRADIUS, N_PVITESSE, N_MVITESSE, N_PBOMBE, N_MBOMBE, N_PVIE, N_POUSSEE};
-    
+
     for(i= 1 ; i<12 ; i++){
         j=0;
-        while(j<tab_nbBonus[i-1]) { 
+        while(j<tab_nbBonus[i-1]) {
             x= rand() % (longueur_map);
             y= rand() % (hauteur_map);
             if(carte[x][y].bloc.type > 0 && carte[x][y].bonus == 0 ){
@@ -111,16 +110,16 @@ void generationBonus(Square** carte)
             }
         }
     }
-    
+
     /**
     int x, y;
     int cpt = 1, i=0;
-    
+
     while(cpt<12)
     {
         x= rand() % (longueur_map);
         y= rand() % (hauteur_map);
-        
+
         if(carte[x][y].bloc.type >0 && carte[x][y].bonus == 0 )
         {
             switch(cpt)
@@ -232,54 +231,66 @@ void generationBonus(Square** carte)
      * */
 }
 
-void recuperationBonus(Square** carte, Perso* joueur){
+void recuperationBonus(Square** carte, Perso* joueur, Mix_Chunk *sonBonus, Mix_Chunk *sonMalus){
     if(carte[joueur->pos.x][joueur->pos.y].bonus != 0){
         switch(carte[joueur->pos.x][joueur->pos.y].bonus){
             case FEU:
+                Mix_PlayChannel( -1, sonBonus, 0 );
                 joueur->effetBonus =1;
                 break;
             case GLACE:
+                Mix_PlayChannel( -1, sonBonus, 0 );
                 joueur->effetBonus =2;
                 break;
             case MINE:
+                Mix_PlayChannel( -1, sonBonus, 0 );
                 joueur->effetBonus =3;
                 break;
             case PRADIUS:
+                Mix_PlayChannel( -1, sonBonus, 0 );
                 joueur->radius++;
                 break;
             case MRADIUS:
+                Mix_PlayChannel( -1, sonMalus, 0 );
                 if(joueur->radius >1)
                     joueur->radius--;
                 break;
             case PVITESSE:
+                Mix_PlayChannel( -1, sonBonus, 0 );
                 joueur->vitesse+=1;
                 break;
             case MVITESSE:
                 if(joueur->vitesse>1){
                     joueur->vitesse-=1;
+                    Mix_PlayChannel( -1, sonMalus, 0 );
                 }
                 break;
             case PBOMBE:
+                Mix_PlayChannel( -1, sonBonus, 0 );
                 joueur->nbBombeTot++;
                 break;
             case MBOMBE:
+                Mix_PlayChannel( -1, sonMalus, 0 );
                 if(joueur->nbBombeTot >1)
                     joueur->nbBombeTot--;
                 break;
             case PVIE:
+                Mix_PlayChannel( -1, sonBonus, 0 );
                 joueur->vie++;
                 break;
             case POUSSEE:
+                Mix_PlayChannel( -1, sonBonus, 0 );
                 joueur->poussee=1;
                 break;
         }
+
+
     }
     carte[joueur->pos.x][joueur->pos.y].bonus = 0;
 }
 
 void detruire_bloc(SDL_Surface* screenSurface, Square** carte, Position pos){
     carte[pos.x][pos.y].bloc.type = 0;
-    
 }
 
 /*prend la carte, la position de la bombe à pousser, la direction dans laquelle pousser la bombe
@@ -357,4 +368,3 @@ void pousser(Square** carte, Position pos, int dirJoueur){
             break;
     }
 }
-

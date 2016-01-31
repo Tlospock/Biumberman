@@ -13,6 +13,8 @@ int initierSDL(SDL_Window** window, SDL_Surface** screensurface);
 
 void quitter(SDL_Window* window, SDL_Surface* screenSurface);
 
+void load_sound(Mix_Music** musicEnJeu, Mix_Music** musicMenu, Mix_Chunk** explosion, Mix_Chunk** recupBonus,Mix_Chunk** recupMalus, Mix_Chunk** sonMenu);
+
 void refresh_map(SDL_Window* window, SDL_Surface* screenSurface, Square** carte, Perso* tabJoueur);
 
 void refresh_perso(SDL_Surface* screenSurface, Perso* joueur);

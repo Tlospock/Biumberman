@@ -59,7 +59,7 @@ void init_perso(Square **carte, Perso* tab_perso, int nb_perso){
 
 /*renvoie 1 si déplacement possible, sinon 0
  * Si possible alors déplace.*/
-int deplacer(Square** carte, Perso* joueur){
+int deplacer(Square** carte, Perso* joueur, Mix_Chunk *sonBonus, Mix_Chunk *sonMalus){
     Position posbombe;
     if(joueur->vie > 0 && joueur->nbpas ==0) {
         switch(joueur->direction)
@@ -84,7 +84,7 @@ int deplacer(Square** carte, Perso* joueur){
                 joueur->pos.y++;
                 carte[joueur->pos.x][joueur->pos.y].idJoueur = joueur->id;
                 joueur->nbpas = 39;
-                recuperationBonus(carte, joueur);
+                recuperationBonus(carte, joueur, sonBonus, sonMalus);
                 return 1;
                 break;
             case(HAUT):
@@ -105,7 +105,7 @@ int deplacer(Square** carte, Perso* joueur){
                 joueur->pos.y--;
                 carte[joueur->pos.x][joueur->pos.y].idJoueur = joueur->id;
                 joueur->nbpas = 39;
-                recuperationBonus(carte, joueur);
+                recuperationBonus(carte, joueur, sonBonus, sonMalus);
                 return 1;
                 break;
             case(GAUCHE):
@@ -126,7 +126,7 @@ int deplacer(Square** carte, Perso* joueur){
                 joueur->pos.x--;
                 carte[joueur->pos.x][joueur->pos.y].idJoueur = joueur->id;
                 joueur->nbpas = 39;
-                recuperationBonus(carte, joueur);
+                recuperationBonus(carte, joueur, sonBonus, sonMalus);
                 return 1;
                 break;
             case(DROITE):
@@ -147,11 +147,11 @@ int deplacer(Square** carte, Perso* joueur){
                 joueur->pos.x++;
                 carte[joueur->pos.x][joueur->pos.y].idJoueur = joueur->id;
                 joueur->nbpas = 39;
-                recuperationBonus(carte, joueur);
+                recuperationBonus(carte, joueur, sonBonus, sonMalus);
                 return 1;
                 break;
         }
-        
+
     /*deplacement a pas pu se faire car obstacle*/
     return 0;
     }
@@ -166,7 +166,7 @@ void poseBombe(Square** carte, Perso* joueur, SDL_Window* window, SDL_Surface* s
     int i=0, j=1;
     /*Si la case est bien vide*/
     if(carte[joueur->pos.x][joueur->pos.y].bombe.radius==0){
-    /*Si le joueur peut bien poser une bombe*/    
+    /*Si le joueur peut bien poser une bombe*/
         if(joueur->nbBombeTot - joueur->nbBombePos > 0 && joueur->vie > 0){
             joueur->nbBombePos++;
             carte[joueur->pos.x][joueur->pos.y].bombe.decompte = SDL_GetTicks();
@@ -226,7 +226,7 @@ void mourir(Square** carte, Perso* joueur)
     }
 }
 
-void check_bomb(SDL_Surface* screenSurface, Square** carte, Perso* tab_joueur)
+void check_bomb(SDL_Surface* screenSurface, Square** carte, Perso* tab_joueur, Mix_Chunk *explosion)
 {
     int i, j;
 
@@ -238,21 +238,21 @@ void check_bomb(SDL_Surface* screenSurface, Square** carte, Perso* tab_joueur)
             {
                 carte[i][j].bombe.decompte = 0;
                 carte[i][j].bombe.aExplose = SDL_GetTicks();
-                exploser(screenSurface, carte, i, j, tab_joueur);
+                exploser(screenSurface, carte, i, j, tab_joueur, explosion);
             }
         }
     }
 }
 
-void exploser(SDL_Surface* screenSurface, Square** carte, int posBombeX, int posBombeY, Perso* tab_joueur){
+void exploser(SDL_Surface* screenSurface, Square** carte, int posBombeX, int posBombeY, Perso* tab_joueur, Mix_Chunk *explosion){
     int i=0, j=1;
 /* j permet de regarder sur les cotes de la bombe.  */
     Position posBombe;
     posBombe.x = posBombeX;
     posBombe.y = posBombeY;
 
-    carte[posBombeX][posBombeY].bombe.decompte = 0; 
-    carte[posBombeX][posBombeY].bombe.aExplose = SDL_GetTicks(); 
+    carte[posBombeX][posBombeY].bombe.decompte = 0;
+    carte[posBombeX][posBombeY].bombe.aExplose = SDL_GetTicks();
     while(i<4)
     {
         while(j<carte[posBombeX][posBombeY].bombe.radius+1) /* si j dépasse le rayon de la bombe, on stop la boucle. */
@@ -266,7 +266,7 @@ void exploser(SDL_Surface* screenSurface, Square** carte, int posBombeX, int pos
                     {
                         /* si c'est une bombe et qu'elle n'a pas encore explosé (ie : la bombe précédente de l'enchainement) */
                         if(carte[posBombeX][posBombeY-j].bombe.radius!=0 && carte[posBombeX][posBombeY-j].bombe.decompte!=0) {
-                            exploser(screenSurface, carte, posBombeX, posBombeY-j, tab_joueur);
+                            exploser(screenSurface, carte, posBombeX, posBombeY-j, tab_joueur, explosion);
                         }
                         else
                         {
@@ -293,7 +293,7 @@ void exploser(SDL_Surface* screenSurface, Square** carte, int posBombeX, int pos
                     else
                     {
                         if(carte[posBombeX][posBombeY+j].bombe.radius!=0 && carte[posBombeX][posBombeY+j].bombe.decompte!=0) {
-                            exploser(screenSurface, carte, posBombeX, posBombeY+j, tab_joueur);
+                            exploser(screenSurface, carte, posBombeX, posBombeY+j, tab_joueur, explosion);
                         }
                         else
                         {
@@ -319,7 +319,7 @@ void exploser(SDL_Surface* screenSurface, Square** carte, int posBombeX, int pos
                     else
                     {
                         if(carte[posBombeX-j][posBombeY].bombe.radius!=0 && carte[posBombeX-j][posBombeY].bombe.decompte!=0) {
-                            exploser(screenSurface, carte, posBombeX-j, posBombeY, tab_joueur);
+                            exploser(screenSurface, carte, posBombeX-j, posBombeY, tab_joueur, explosion);
                         }
                         else
                         {
@@ -347,7 +347,7 @@ void exploser(SDL_Surface* screenSurface, Square** carte, int posBombeX, int pos
                     else
                     {
                         if(carte[posBombeX+j][posBombeY].bombe.radius!=0 && carte[posBombeX+j][posBombeY].bombe.decompte!=0) {
-                            exploser(screenSurface, carte, posBombeX+j, posBombeY, tab_joueur);
+                            exploser(screenSurface, carte, posBombeX+j, posBombeY, tab_joueur, explosion);
                         }
                         else
                         {
@@ -387,7 +387,11 @@ void exploser(SDL_Surface* screenSurface, Square** carte, int posBombeX, int pos
     carte[posBombeX][posBombeY].bombe.decompte = -1;
     /*Mise à jour des infos du perso liées à la bombe*/
     tab_joueur[carte[posBombeX][posBombeY].bombe.proprio].nbBombePos--;
-    //carte[posBombeX][posBombeY].bombe.proprio=-1;
+    /*carte[posBombeX][posBombeY].bombe.proprio=-1;*/
+
+    /*Son de l'explosion*/
+    printf("Explosion...\n");
+    Mix_PlayChannel( -1, explosion, 0 );
 
 }
     /*refresh la map*/
