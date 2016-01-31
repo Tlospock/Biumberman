@@ -5,7 +5,7 @@ int jeu(){
     int i, j;
     int nbalive = 0;
     int time_start = 0;
-    
+
     hauteur_map = 15;
     longueur_map = 16;
     /*Initialisation de la SDL*/
@@ -14,7 +14,7 @@ int jeu(){
      Position actuelle;
 
     /*main loop flag*/
-    short int quit = 0;    
+    short int quit = 0;
     int play_again = 0;
 
     /*event handler*/
@@ -22,15 +22,38 @@ int jeu(){
     SDL_Window* window;
     SDL_Surface* screenSurface;
 
+    /*Début chargement son et musiques*/
+
+    /*Musique qui va être jouée*/
+    Mix_Music *musicEnJeu = NULL;
+    Mix_Music *musicMenu = NULL;
+
+    /*Effets sonores utilisés*/
+    Mix_Chunk *explosion = NULL;
+    Mix_Chunk *recupBonus = NULL;
+    Mix_Chunk *recupMalus = NULL;
+    Mix_Chunk *sonMenu = NULL;
+
+
     success = initierSDL(&window, &screenSurface);
     if(!success){
         printf("\nPas pu initialiser TLO BIUMBERMAN");
         exit(EXIT_FAILURE);
     }
-    
+    load_sound(&musicEnJeu, &musicMenu, &explosion, &recupBonus, &recupMalus, &sonMenu);
+
+
+
     do{
         play_again = 0;
-  
+
+        /*Demarrage de la musique de menu*/
+        if( Mix_PlayingMusic() == 0 )
+        {
+            /*Play the music*/
+            Mix_PlayMusic( musicMenu, -1 );
+        }
+
         SDL_FillRect(screenSurface, NULL, SDL_MapRGB((screenSurface)->format, 0xFF, 0xAA, 0xAA));
         /*Menu choix nb persos jouables puis Menu choix nb joueurs puis Menu choix taille map*/
         int nbPerso = inputNbPersos(window, screenSurface);
@@ -60,12 +83,12 @@ int jeu(){
                     }
                     /*Déclaration/allocation du tableau de joueurs*/
                     Perso* tab_joueur = (Perso*)malloc(nbPerso*sizeof(Perso));
-                    
+
                     init_map(carte, longueur_map, hauteur_map);
                     init_perso(carte, tab_joueur, nbPerso);
                     /*Fin Initialisation*/
                     /*Boucle de Jeu*/
-                    /*Pour que les joueurs puissent appuyer sur les touches en meme temps, sans se bloquer entre eux, 
+                    /*Pour que les joueurs puissent appuyer sur les touches en meme temps, sans se bloquer entre eux,
                     * il faut un booleen par key, le mettre a 1 dans le switch du pollevent, puis après le switch gerer les actions */
                     char down1 = 0; char down2 = 0;
                     char up1 = 0; char up2 = 0;
@@ -74,7 +97,22 @@ int jeu(){
                     char action1 = 0; char action2 = 0;
 
                     time_start = SDL_GetTicks();
+
+
+                    /*Stop the music*/
+                    Mix_HaltMusic();
+
+
                     do{
+
+                        /*On démarre la musique*/
+
+                        if( Mix_PlayingMusic() == 0 )
+                        {
+                            /*Play the music*/
+                            Mix_PlayMusic( musicEnJeu, -1 );
+                        }
+
                         SDL_PollEvent(&e);
                         switch(e.type){
                              /*User requests quit*/
@@ -100,7 +138,7 @@ int jeu(){
                                     case SDL_SCANCODE_SPACE :
                                         poseBombe(carte, &tab_joueur[0], window, screenSurface);
                                         break;
-                                        
+
                                     /*JOUEUR 2 A LES FLECHES*/
                                     case SDL_SCANCODE_DOWN:
                                         down2 = 1;
@@ -117,8 +155,12 @@ int jeu(){
                                     case SDL_SCANCODE_RETURN:
                                         poseBombe(carte, &tab_joueur[1], window, screenSurface);
                                         break;
+                                    case SDL_SCANCODE_ESCAPE:
+                                        quit=1;
+                                        break;
                                     default :
                                         break;
+
                                 }
                                 break;
                             case SDL_KEYUP :
@@ -138,7 +180,7 @@ int jeu(){
                                         break;
                                     case SDL_SCANCODE_SPACE :
                                         break;
-                                            
+
                                     /*JOUEUR 2 A LES FLECHES*/
                                     case SDL_SCANCODE_DOWN:
                                         down2 = 0;
@@ -154,12 +196,7 @@ int jeu(){
                                         break;
                                     case SDL_SCANCODE_RETURN:
                                         break;
-                                    
-                                    
-                                    case SDL_SCANCODE_ESCAPE:
-                                        quit=1;
-                                        break;
-                                    default :
+                                    default:
                                         break;
                                 }
                                 break;
@@ -167,37 +204,37 @@ int jeu(){
                         /*Interprétation des booléens des touches du joueur1*/
                         if(down1 && tab_joueur[0].nbpas==0){
                             tab_joueur[0].direction = BAS;
-                            tab_joueur[0].deplacement = deplacer(carte, &tab_joueur[0]);
+                            tab_joueur[0].deplacement = deplacer(carte, &tab_joueur[0], recupBonus, recupMalus);
                         }
                         if(up1 && tab_joueur[0].nbpas==0){
                             tab_joueur[0].direction = HAUT;
-                            tab_joueur[0].deplacement = deplacer(carte, &tab_joueur[0]);
-                            
+                            tab_joueur[0].deplacement = deplacer(carte, &tab_joueur[0], recupBonus, recupMalus);
+
                         }
                         if(left1 && tab_joueur[0].nbpas==0){
                             tab_joueur[0].direction = GAUCHE;
-                            tab_joueur[0].deplacement = deplacer(carte, &tab_joueur[0]);
+                            tab_joueur[0].deplacement = deplacer(carte, &tab_joueur[0], recupBonus, recupMalus);
                         }
                         if(right1 && tab_joueur[0].nbpas==0){
                             tab_joueur[0].direction = DROITE;
-                            tab_joueur[0].deplacement = deplacer(carte, &tab_joueur[0]);
+                            tab_joueur[0].deplacement = deplacer(carte, &tab_joueur[0], recupBonus, recupMalus);
                         }
                         /*Interprétation des booléens des touches du joueur1*/
                         if(down2 && nbJoueurs > 1 && tab_joueur[1].nbpas==0){
                             tab_joueur[1].direction = BAS;
-                            tab_joueur[1].deplacement = deplacer(carte, &tab_joueur[1]);
+                            tab_joueur[1].deplacement = deplacer(carte, &tab_joueur[1], recupBonus, recupMalus);
                         }
                         if(up2 && nbJoueurs > 1 && tab_joueur[1].nbpas==0){
                             tab_joueur[1].direction = HAUT;
-                            tab_joueur[1].deplacement = deplacer(carte, &tab_joueur[1]);
+                            tab_joueur[1].deplacement = deplacer(carte, &tab_joueur[1], recupBonus, recupMalus);
                         }
                         if(left2 && nbJoueurs > 1 && tab_joueur[1].nbpas==0){
                             tab_joueur[1].direction = GAUCHE;
-                            tab_joueur[1].deplacement = deplacer(carte, &tab_joueur[1]);
+                            tab_joueur[1].deplacement = deplacer(carte, &tab_joueur[1], recupBonus, recupMalus);
                         }
                         if(right2 && nbJoueurs > 1 && tab_joueur[1].nbpas==0){
                             tab_joueur[1].direction = DROITE;
-                            tab_joueur[1].deplacement = deplacer(carte, &tab_joueur[1]);
+                            tab_joueur[1].deplacement = deplacer(carte, &tab_joueur[1], recupBonus, recupMalus);
                         }
                         /*Début gestion IA*/
                     if(nbPerso>1 && nbJoueurs==1)           /*Si il y a plus de 1 joueurs et que le joueur 2 est une IA*/
@@ -208,7 +245,7 @@ int jeu(){
                             if (prochaineCase(carte, actuelle, &tab_joueur[1], window, screenSurface)!= -1)     /*Si la fonction renvoie une direction, -1 étant l'ordre de ne pas bouger*/
                             {
                                 tab_joueur[1].direction = prochaineCase(carte, actuelle, &tab_joueur[1], window, screenSurface);    /*On règle la direction de l'IA*/
-                                tab_joueur[1].deplacement = deplacer(carte, &tab_joueur[1]);                                        /*On déplace l'IA*/
+                                tab_joueur[1].deplacement = deplacer(carte, &tab_joueur[1], recupBonus, recupMalus);                                        /*On déplace l'IA*/
                             }
                         }
                     }
@@ -220,7 +257,7 @@ int jeu(){
                             if (prochaineCase(carte, actuelle, &tab_joueur[2], window, screenSurface)!= -1)
                             {
                                 tab_joueur[2].direction = prochaineCase(carte, actuelle, &tab_joueur[2], window, screenSurface);    /*On règle la direction de l'IA*/
-                                tab_joueur[2].deplacement = deplacer(carte, &tab_joueur[2]);                                        /*On déplace l'IA*/
+                                tab_joueur[2].deplacement = deplacer(carte, &tab_joueur[2], recupBonus, recupMalus);                                        /*On déplace l'IA*/
                             }
                         }
                     }
@@ -232,14 +269,14 @@ int jeu(){
                             if (prochaineCase(carte, actuelle, &tab_joueur[3], window, screenSurface)!= -1)                         /*Si la fonction renvoie une direction, -1 étant l'ordre de ne pas bouger*/
                             {
                                 tab_joueur[3].direction = prochaineCase(carte, actuelle, &tab_joueur[3], window, screenSurface);    /*On règle la direction de l'IA*/
-                                tab_joueur[3].deplacement = deplacer(carte, &tab_joueur[3]);                                        /*On déplace l'IA*/
+                                tab_joueur[3].deplacement = deplacer(carte, &tab_joueur[3], recupBonus, recupMalus);                                        /*On déplace l'IA*/
                             }
                         }
                     }
 
                     /*Fin gestion IA*/
-                        
-                        check_bomb(screenSurface, carte, tab_joueur);
+
+                        check_bomb(screenSurface, carte, tab_joueur, explosion);
                         refresh_map(window, screenSurface, carte, tab_joueur);
                         /*Si c'est la fin du timer ou si un des joueurs est mort ou les deux */
                         nbalive = nbJoueurs;
@@ -258,7 +295,7 @@ int jeu(){
                             /*afficher le menu de fin avec les joueurs et proposition de quitter / recommencer une partie*/
                             play_again = finjeu(window, screenSurface, tab_joueur, nbJoueurs);
                             quit=!play_again;
-                            
+
                             for(i=0; i<nbJoueurs; i++){
                                 tab_joueur[i].vie = 0;
                             }
@@ -267,7 +304,7 @@ int jeu(){
                             refresh_perso(screenSurface, &tab_joueur[i]);
                         }
                         SDL_UpdateWindowSurface(window);
-                    
+
                     }while(!quit && !play_again); /*Fin de la boucle de Jeu*/
                     /*Quitter la SDL*/
                     /*désallouer le tableau de la carte*/
@@ -277,12 +314,33 @@ int jeu(){
                     free(carte);
                     /*désallouer le tableau des joueurs*/
                     free(tab_joueur);
-        
+
+                    Mix_HaltMusic();
+
                     printf("\n\n FIN DU JEU\n\n");
                 }
             }
         }
     }while(!quit && play_again);
+
+    /*Musique qui va être jouée*/
+    Mix_FreeMusic(musicEnJeu);
+    Mix_FreeMusic(musicMenu );
+
+    musicEnJeu = NULL;
+    musicMenu = NULL;
+
+    /*Effets sonores utilisés*/
+    Mix_FreeChunk(explosion);
+    Mix_FreeChunk(recupBonus);
+    Mix_FreeChunk(recupMalus);
+    Mix_FreeChunk(sonMenu);
+
+    explosion = NULL;
+    recupBonus = NULL;
+    recupMalus = NULL;
+    sonMenu = NULL;
+
     quitter(window, screenSurface);
     return 0;
 }
