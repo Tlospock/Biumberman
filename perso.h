@@ -17,14 +17,13 @@
 
 void init_perso(Square **carte, Perso* tab_perso, int nb_perso);
 
-int deplacer(Square** carte, Perso* joueur);
+int deplacer(Square** carte, Perso* joueur, Mix_Chunk *sonBonus, Mix_Chunk *sonMalus);
 
-void check_bomb(SDL_Surface* screenSurface, Square** carte, Perso* tab_joueur);
-
+void check_bomb(SDL_Surface* screenSurface, Square** carte, Perso* tab_joueur, Mix_Chunk *explosion);
 void poseBombe(Square** carte, Perso* joueur, SDL_Window* window, SDL_Surface* screenSurface);
 
 void mourir(Square** carte, Perso* joueur);
 
-void exploser(SDL_Surface* screenSurface, Square** carte, int posBombeX, int posBombeY, Perso* tab_joueur);
+void exploser(SDL_Surface* screenSurface, Square** carte, int posBombeX, int posBombeY, Perso* tab_joueur, Mix_Chunk *explosion);
 
 #endif /* _PERSO_H*/
