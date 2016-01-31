@@ -94,11 +94,8 @@ void refresh_map(SDL_Window* window, SDL_Surface* screenSurface, Square** carte,
                 if(carte[i-1][j-1].bombe.aExplose > 0){
                     animexplosion(screenSurface, &(carte[i-1][j-1].bombe), posTile, carte, tabJoueur[carte[i-1][j-1].bombe.proprio].radius);
                 }
-                /*PAS OUBLIER REMETTRE CETTE CONDITION POUR CACHER LES BONUS*/
-                if(carte[i-1][j-1].bonus != RIEN/* && carte[i-1][j-1].bloc.type == 0*/){
-                   // printf("there is a bonus. here : %d ; %d : %d\n", i-1, j-1, carte[i-1][j-1].bonus);
+                if(carte[i-1][j-1].bonus != RIEN && carte[i-1][j-1].bloc.type == 0){
                     affichebonus(screenSurface, carte[i-1][j-1].bonus, &posTile);
-                    //SDL_BlitSurface(truc, NULL, screenSurface, &posTile);
                 }
         }
     }
@@ -734,37 +731,37 @@ void affichebonus(SDL_Surface* screenSurface, short int bonus, SDL_Rect *pos){
    SDL_Surface* surfBonus = NULL;
    
    switch(bonus){
-        case FEU: // 1
+        case FEU:
             surfBonus = SDL_LoadBMP("Img/fire.bmp");
             break;
-        case GLACE: // 2
+        case GLACE: 
             surfBonus = SDL_LoadBMP("Img/ice.bmp");
             break;
-        case MINE: // 3
+        case MINE: 
             surfBonus= SDL_LoadBMP("Img/bomb2.bmp");
             break;
-       case PRADIUS: // 4 
+       case PRADIUS: 
             surfBonus = SDL_LoadBMP("Img/radiusPlus.bmp");
             break;
-        case MRADIUS: // 5
+        case MRADIUS: 
             surfBonus = SDL_LoadBMP("Img/radiusMoins.bmp");
             break;
-        case PVITESSE: // 6
+        case PVITESSE: 
             surfBonus = SDL_LoadBMP("Img/vitessePlus.bmp");
             break;
-        case MVITESSE: // 7
+        case MVITESSE: 
             surfBonus = SDL_LoadBMP("Img/vitesseMoins.bmp");
             break;
-        case PBOMBE: // 8
+        case PBOMBE: 
             surfBonus = SDL_LoadBMP("Img/bomb2.bmp");
             break;
         case MBOMBE: 
             surfBonus = SDL_LoadBMP("Img/bomb2.bmp");
             break;
-        case PVIE: // 10
+        case PVIE: 
             surfBonus = SDL_LoadBMP("Img/viePlus.bmp");
             break;
-        case POUSSEE: // 11
+        case POUSSEE: 
             surfBonus = SDL_LoadBMP("Img/bomb2.bmp");
             break;
             default : 
